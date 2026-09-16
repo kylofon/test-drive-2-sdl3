@@ -65,8 +65,8 @@ func,06c9:3ea4,draw_number3,near AX=value SI=slot*2,3-digit number
 func,06c9:3ed7,draw_inst_digit,near AL=digit SI=slot*2,one instrument digit
 func,06c9:3efc,select_main_view,far void(void),select_target(DS:09B2)
 func,06c9:3f0d,wait_after_message,far void(void),"drain keys, delay, wait key or 1800 ticks"
-func,06c9:3f40,sim_stage_init,far void(void),see simulation spec
-func,06c9:3ff9,sim_life_reset,far void(void),see simulation spec
+func,06c9:3f40,sim_stage_start,far void(void),see simulation spec
+func,06c9:3ff9,sim_restart_reset,far void(void),see simulation spec
 func,06c9:5c98,select_screen,far void(void),platform: select_target(CS:AF54)
 func,06c9:5ca6,create_buffer_like,"far (far sprite) -> DX:AX desc, CX:BX sprite",platform
 func,06c9:7d5e,select_target,"far (off,seg)",platform: copy 13-word descriptor to CS:AF3A
@@ -241,7 +241,7 @@ global,DS:2FAC,dash_handles,far[25],
 global,DS:3010,dash_digit_handles,far[12],
 global,DS:30E2,gate_prev,u8,
 global,DS:30E3,marker_saved,u8,
-global,DS:3346,radar_flags,u16,sim
+global,DS:3346,sim_tick10,u16,sim
 global,DS:3348,radar_level,u16,sim
 global,DS:3355,ticket_amount,u8,sim
 global,DS:3379,opponent_enabled,u8,

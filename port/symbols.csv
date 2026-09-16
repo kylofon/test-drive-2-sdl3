@@ -163,8 +163,8 @@ func,06c9:3ea4,draw_number3,near AX=value SI=slot*2,scene_render,,3-digit number
 func,06c9:3ed7,draw_inst_digit,near AL=digit SI=slot*2,scene_render,,one instrument digit
 func,06c9:3efc,select_main_view,far void(void),scene_render,,select_target(DS:09B2)
 func,06c9:3f0d,wait_after_message,far void(void),scene_render,,"drain keys, delay, wait key or 1800 ticks"
-func,06c9:3f40,sim_stage_init,far void(void),scene_render,sim_stage_start,see simulation spec | stage reset; look-ahead flag checksum; end fix-up; registers 06c9:6269 and 06c9:403b in the timer list
-func,06c9:3ff9,sim_life_reset,far void(void),scene_render,sim_restart_reset,see simulation spec | per-life reset; calls 5427
+func,06c9:3f40,sim_stage_start,far void(void),scene_render,,see simulation spec | stage reset; look-ahead flag checksum; end fix-up; registers 06c9:6269 and 06c9:403b in the timer list
+func,06c9:3ff9,sim_restart_reset,far void(void),scene_render,,see simulation spec | per-life reset; calls 5427
 func,06c9:403b,sim_timer_routine,far void(void) sets DS,simulation,,100 Hz timer-list routine; 10 Hz sim tick; 1 Hz clock
 func,06c9:412c,sound_tick,near,simulation,drive_sound_update,every tick: rpm slew; DS:5F2E slots 0x55/0x56/0x58 (simulation spec) | rpm needle slew; engine/rumble/effect tone divisors DS:5FD8-5FDE
 func,06c9:420a,read_input,near,simulation,,controls; idle quit; hotkeys
@@ -715,7 +715,7 @@ global,DS:333A,YAW_MAX,i16,simulation,,0x2800
 global,DS:333C,grip_limit,i16,simulation,,
 global,DS:333E,lane_gap,u16[3],simulation,,AI gaps left/right/outer right
 global,DS:3344,curve_speed_limit,u16,simulation,,8.8 mph
-global,DS:3346,tick_count,u16,simulation,radar_flags,sim | 10 Hz
+global,DS:3346,sim_tick10,u16,simulation,,sim | 10 Hz
 global,DS:3348,radar_level,u16,scene_render,,sim | 0-5
 global,DS:334A,rel_player_opp,i16,simulation,,
 global,DS:334C,rel_player_cop,i16,simulation,,

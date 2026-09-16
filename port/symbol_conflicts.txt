@@ -1,5 +1,3 @@
-func 06c9:3f40: scene_render=sim_stage_init; simulation=sim_stage_start
-func 06c9:3ff9: scene_render=sim_life_reset; simulation=sim_restart_reset
 func 06c9:412c: platform=drive_sound_update; simulation=sound_tick
 func 06c9:7d5e: platform=gfx_select_target; scene_render=select_target
 func 06c9:843e: platform=gfx_clear_clip; scene_render=fill_clip
@@ -26,7 +24,6 @@ global DS:2F5C: scene_render=redraw_hud; simulation=clock_dirty
 global DS:30E8: platform=engine_div; simulation=ENGINE_NOTE
 global DS:32AE: platform=noise_div; simulation=RUMBLE
 global DS:331C: game_flow=opp_penalties; simulation=opp_crashes
-global DS:3346: scene_render=radar_flags; simulation=tick_count
 global DS:3379: scene_render=opponent_enabled; simulation=opp_enabled
 global DS:33CE: scene_render=fall_scroll; simulation=fall_depth
 global DS:346A: game_flow=stage_dat; scene_render=dat_image; simulation=stage

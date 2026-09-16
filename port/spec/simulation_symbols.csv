@@ -126,7 +126,7 @@ global,DS:333A,YAW_MAX,i16,0x2800
 global,DS:333C,grip_limit,i16,
 global,DS:333E,lane_gap,u16[3],AI gaps left/right/outer right
 global,DS:3344,curve_speed_limit,u16,8.8 mph
-global,DS:3346,tick_count,u16,10 Hz
+global,DS:3346,sim_tick10,u16,10 Hz
 global,DS:3348,radar_level,u16,0-5
 global,DS:334A,rel_player_opp,i16,
 global,DS:334C,rel_player_cop,i16,

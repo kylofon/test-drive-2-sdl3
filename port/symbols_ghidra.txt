@@ -162,8 +162,8 @@ func 16C9:3EA4 draw_number3
 func 16C9:3ED7 draw_inst_digit
 func 16C9:3EFC select_main_view
 func 16C9:3F0D wait_after_message
-func 16C9:3F40 sim_stage_init
-func 16C9:3FF9 sim_life_reset
+func 16C9:3F40 sim_stage_start
+func 16C9:3FF9 sim_restart_reset
 func 16C9:403B sim_timer_routine
 func 16C9:412C sound_tick
 func 16C9:420A read_input
@@ -714,7 +714,7 @@ global DS:333A YAW_MAX
 global DS:333C grip_limit
 global DS:333E lane_gap
 global DS:3344 curve_speed_limit
-global DS:3346 tick_count
+global DS:3346 sim_tick10
 global DS:3348 radar_level
 global DS:334A rel_player_opp
 global DS:334C rel_player_cop
