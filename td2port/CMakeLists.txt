@@ -18,6 +18,10 @@ if(MSVC)
 else()
     # The memory model reads multi-byte values through byte pointers (see src/mem.h).
     target_compile_options(td2port PRIVATE -Wall -Wextra -Wno-unused-parameter -fno-strict-aliasing)
+    # Game strings are copied out of mem[] into fixed buffers with snprintf; truncation is intended.
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(td2port PRIVATE -Wno-format-truncation)
+    endif()
 endif()
 if(WIN32)
     add_custom_command(TARGET td2port POST_BUILD
