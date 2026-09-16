@@ -16,12 +16,23 @@ All archives decode to exactly the stored size (verified on every shipped .PES /
 Decoded archive: u32 total, u16 count, count x char[4] names, count x u32 offsets (relative to the
 end of the table, not sorted), data.
 Sprite: 16-byte header u16 width_bytes, height, hot_x, hot_y, s16 x, y, u8 planemap[4].
-  4-colour: rows of 2bpp pixels (width_bytes x 4 pixels).
-  16-colour: one block of rows per stored plane (1 bpp); a planemap byte with a non-zero low nibble
-  is a stored plane, the nibble lists the colour planes it goes to. The other high-nibble bits are
-  not decoded yet (they are rendered as 0), so some sprites show the wrong colours.
-  planemap[2] bit 0x10 (both formats): pixels are stored column by column (width_bytes columns of
-  `height` bytes) instead of row by row.
+  Plane map (TD2EGA blitter 06c9:916c family, loader fix-up 06c9:c838, verified):
+    low nibble of pm[k]    stored plane k is written to these colour planes (list ends at the first
+                           pm[k] with low nibble 0)
+    pm[0] >> 4             colour planes cleared over the sprite rectangle (REPLACE / AND blits)
+    pm[1] >> 4             colour planes set (REPLACE / OR blits) or inverted (XOR blits)
+    pm[2] >> 4             16-colour: bit k set = stored block k is column-major (w columns of h bytes);
+                           the .PES loader converts every flagged block to row-major once after
+                           unpacking (06c9:c838, "UNFLIP"); skipped when pm[3] >> 4 != 0.
+                           4-colour (TD2CGA loader, image 0x10DA0): a mode, 1 = column-major,
+                           2 = column-major with each column holding its even rows then its odd rows,
+                           3 = even rows as a w x ceil(h/2) column-major block, then odd rows as a
+                           w x floor(h/2) column-major block; >= 4 is rejected.
+    pm[3] >> 4             padding bytes after each stored block (0 in all shipped files)
+  4-colour: rows of 2bpp pixels (width_bytes x 4 pixels); the CGA blitter ignores the plane map
+  except for the storage mode.
+  16-colour: one block of rows per stored plane (1 bpp). Colour bits that no stored plane and no
+  pm[0]/pm[1] nibble mentions are left untouched by the game; they render as 0 here.
 
 usage: td2res.py info FILE
        td2res.py export FILE OUTDIR
@@ -30,8 +41,11 @@ usage: td2res.py info FILE
 import os, struct, sys
 import numpy as np
 
-CGA_PAL = [(0, 0, 0), (85, 255, 255), (255, 85, 255), (255, 255, 255)]
-# Default EGA palette until the game's own palette is read from TD2EGA.EXE.
+# TD2CGA: INT 10h mode 4, then (main, via the 06cf:5d00-slot hook) port 3D8h = 0Eh (colour burst off ->
+# cyan/red/white palette on RGB monitors) and 3D9h = 30h (intensity): black, light cyan, light red, white.
+CGA_PAL = [(0, 0, 0), (85, 255, 255), (255, 85, 85), (255, 255, 255)]
+# TD2EGA palette (06c9:90e8 loads DS:6848 with INT 10h AX=1002h, mode 0Dh):
+# registers 00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17, overscan 00 = the standard 16 colours.
 EGA_PAL = [(0, 0, 0), (0, 0, 170), (0, 170, 0), (0, 170, 170), (170, 0, 0), (170, 0, 170),
            (170, 85, 0), (170, 170, 170), (85, 85, 85), (85, 85, 255), (85, 255, 85),
            (85, 255, 255), (255, 85, 85), (255, 85, 255), (255, 255, 85), (255, 255, 255)]
@@ -145,26 +159,67 @@ def sprite_info(blob, ega):
         return None
     w, h, hx, hy, x, y = struct.unpack_from('<4H2h', blob, 0)
     pmap = blob[12:16]
-    planes = [b & 0x0F for b in pmap if b & 0x0F] if ega else [0]
-    if not w or not h or len(blob) != 16 + w * h * len(planes):
+    planes = []
+    if ega:
+        for b in pmap:
+            if not b & 0x0F:
+                break
+            planes.append(b & 0x0F)
+    pad = pmap[3] >> 4
+    nblk = len(planes) if ega else 1
+    size = 16 + (w * h + pad) * nblk
+    # EC_4.PCS mtn2 (the only exception) has 2 trailing bytes after its 2bpp block.
+    if not w or not h or not (len(blob) == size or (not ega and size < len(blob) < size + 4)):
         return None
-    return dict(w=w, h=h, hx=hx, hy=hy, x=x, y=y, planes=planes, pmap=pmap.hex())
+    return dict(w=w, h=h, hx=hx, hy=hy, x=x, y=y, planes=planes, pmap=pmap.hex(), pad=pad)
 
 
-def plane_rows(blob, info, k):
+def _unflip_ega(px, w, h):
+    """06c9:c838: column-major block (w columns of h bytes) -> h x w rows."""
+    return px.reshape(w, h).T
+
+
+def _unflip_cga(px, w, h, mode):
+    """TD2CGA loader (image 0x10DA0) storage modes 1..3 -> h x w rows."""
+    out = np.zeros((h, w), np.uint8)
+    if mode == 1:
+        return px.reshape(w, h).T
+    if mode == 2:                       # each column: even rows, then odd rows
+        col = px.reshape(w, h)
+        ne = (h + 1) // 2
+        out[0::2] = col[:, :ne].T
+        out[1::2] = col[:, ne:].T
+        return out
+    if mode == 3:                       # even-row field, then odd-row field, both column-major
+        ne, no = (h + 1) // 2, h // 2
+        out[0::2] = px[:w * ne].reshape(w, ne).T
+        out[1::2] = px[w * ne:w * ne + w * no].reshape(w, no).T
+        return out
+    raise ValueError('bad 4-colour storage mode %d' % mode)
+
+
+def plane_rows(blob, info, k, ega=True):
     """Stored plane k as a height x width_bytes array, row-major."""
     w, h = info['w'], info['h']
-    px = np.frombuffer(blob, np.uint8, offset=16 + k * w * h, count=w * h)
-    return px.reshape(w, h).T if blob[14] & 0x10 else px.reshape(h, w)
+    px = np.frombuffer(blob, np.uint8, offset=16 + k * (w * h + info['pad']), count=w * h)
+    pm = blob[12:16]
+    flags = pm[2] >> 4 if not pm[3] & 0xF0 else 0
+    if ega:
+        return _unflip_ega(px, w, h) if flags >> k & 1 else px.reshape(h, w)
+    return _unflip_cga(px, w, h, flags) if flags else px.reshape(h, w)
 
 
 def render(blob, info, ega):
     from PIL import Image
     w, h = info['w'], info['h']
     if not ega:
-        bits = np.unpackbits(plane_rows(blob, info, 0), axis=1).reshape(h, w * 4, 2)
+        bits = np.unpackbits(plane_rows(blob, info, 0, False), axis=1).reshape(h, w * 4, 2)
         return Image.fromarray(np.array(CGA_PAL, np.uint8)[bits[:, :, 0] * 2 + bits[:, :, 1]])
-    idx = np.zeros((h, w * 8), np.uint8)
+    # REPLACE blit onto colour 0: pm[0] high nibble clears (already 0), pm[1] high nibble sets.
+    stored = 0
+    for mask in info['planes']:
+        stored |= mask
+    idx = np.full((h, w * 8), (blob[13] >> 4) & ~stored & 0x0F, np.uint8)
     for k, mask in enumerate(info['planes']):
         idx |= np.unpackbits(plane_rows(blob, info, k), axis=1) * mask
     return Image.fromarray(np.array(EGA_PAL, np.uint8)[idx])

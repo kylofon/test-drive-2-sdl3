@@ -1,0 +1,174 @@
+kind,address,name,type,notes
+func,0000:0000,screen_reveal,int (int mode),page DS:8CA2 to screen; mode 3 = 4-step dissolve; 0/1 interruptible
+func,0000:0090,message_box,"int (char *msg, int timed)",box at rows 80..119; returns 0x1B or 0
+func,0000:01b0,question_box,"int (int, char *msg)",install y/n box; returns raw key
+func,0000:0297,ensure_disk,"int (char *name, int diskType, int mode)",disk prompt + diskid check; sets DS:8644 path; dropped by port
+func,0000:0477,check_diskid,"int (int diskType, int stamp)",diskid.dat type/serial check; dropped
+func,0000:05c0,read_diskid,int (int drive),disk type in drive or -1; dropped
+func,0000:0651,cars_select_by_name,void (void),player/opponent car index from codes
+func,0000:0730,scenery_select_by_name,void (void),scenery index from code
+func,0000:07b3,main,"void (int argc, char **argv)",startup; intro/menu loop; exit prompt
+func,00c0:0004,title_screen,int (void),line-art morph then TESTDRV2 tdri/duel
+func,00c0:027a,accolade_screen,int (void),ACCOLADE acc_/pres/copy + bull slide
+func,00c0:039c,intro_sequence,int (void),intro screens; 0 = timeout; 0x1B = Esc
+func,010c:000e,dsi_logo_screen,int (void),logo morph to DSI lines + DSITITLE
+func,010c:0285,credits,int (void),credits text 5 s
+func,0143:000a,showroom_intro,int (int),two showroom cars in the intro
+func,0143:019e,showroom_tick,void (void),timer routine: showroom car speed/distance/window frame
+func,0143:01e1,showroom_drive,"int (char *path, int x, int y, int anim, int reveal)",.SS window animation and drive-off
+func,019e:0004,menu_random_key,int (void),attract-mode random key
+func,019e:009b,car_slide,"far (int car, int from, int to, far old)",vertical slide of the car image (88 rows)
+func,019e:027d,car_select,int (int car),car selection screen
+func,019e:0527,scenery_select,void (void),scenery selection screen
+func,019e:06c5,main_menu,int (void),GAMEOPT menu and dispatch; 1 = exit program
+func,0267:0004,plural_s,char *(int n),'s' unless n == 1
+func,0267:0017,results_line,"void (char *s, int x)","draw at (x, DS:83D2) and advance 8"
+func,0267:0039,stage_results,int (int kind),"kind 0 normal / 1 last stage / 99 game over; gas station, scoring, records, duel/section pages, police ending"
+func,0267:118b,results_overall,void (void),Overall Performance lines
+func,0267:1224,results_section_page,void (void),section header + player stage lines
+func,0267:139b,difficulty_screen,int (void),GAMEDIFF 12-step scale
+func,0267:15e4,run_game,int (int mode),stage loop around 06c9:1b2c
+func,0432:0006,name_to_field,"void (char *dst, char *src)",trim + spaces to underscores
+func,0432:0061,field_to_name,void (char *s),underscores to spaces; pad to 18
+func,0432:00a9,cars_load,"int (int diskType, int flag)",append cars.dat records
+func,0432:01b2,scenes_load,"int (int diskType, int flag)",append scenes.dat records
+func,0432:02bf,select_load,int (int diskType),read select.dat (defaults F40 P959 TDS2)
+func,0432:0376,select_save,void (int diskType),write select.dat
+func,0432:040f,install_draw_drive,"void (int type, int y, int fg, int bg)",install menu; dropped
+func,0432:0441,install_edit_drive,"void (int type, int y)",install menu; dropped
+func,0432:04f1,copy_queued_files,int (void),install: copy up to 20 queued files; dropped
+func,0432:0847,playdisk_create_file,int (char *name),install; dropped
+func,0432:088f,playdisk_delete_file,void (char *name),install; dropped
+func,0432:08f5,install_list_cars,void (...),install list drawing; guess; dropped
+func,0432:0a2e,install_list_scenery,void (...),install list drawing; guess; dropped
+func,0432:0b66,install_list_cursor,void (...),install list drawing; guess; dropped
+func,0432:0c0e,make_play_disk,int (void),install; dropped
+func,0432:0d35,copy_car_files,int (int idx),install; dropped
+func,0432:0f71,copy_scenery_files,int (int idx),install; dropped
+func,0432:11ae,delete_car_files,int (int idx),install; dropped
+func,0432:1341,delete_scenery_files,int (int idx),install; dropped
+func,0432:14db,copy_cars_menu,int (void),install; dropped
+func,0432:19d8,copy_scenery_menu,int (void),install; dropped
+func,0432:1d25,forget_play_disk,void (void),dropped
+func,0432:1d44,catalog_reload,int (void),reload catalogue incl. extra CAR/SCENERY disks
+func,0432:1ea4,install_menu,int (void),INSTALL MENU; jump table 0432:211a; dropped
+func,0645:0000,hisc_load,int (void),read <scn>hisc.dat + checksum
+func,0645:0186,hisc_save,void (void),write 0x154 bytes with checksum
+func,0645:0271,name_entry_screen,int (void),qualified screen + text input
+func,0645:0389,hisc_insert,int (void),insert total score into top 6
+func,0645:0470,hisc_show,int (long timeout),top scores table
+func,0645:06a8,hisc_check,int (void),insert if qualifying then show table 15 s
+func,16fc:0002,hotkeys_install,void (void),Ctrl-J/K/P/Q/S/X handlers
+func,16fc:007c,exit_prompt,void (void),EXIT TO DOS (Y/N) (Ctrl-X)
+func,16fc:0220,status_strip,"void (char *msg, long ticks)",bottom-row message (sound/music/keyboard)
+func,16fc:0358,pause_prompt,void (void),PAUSE (Ctrl-P)
+func,13a8:002e,copyprot_check,int (void),disk-key protection in CRT segment; 0 = passed; port: treat as passed
+func,13a8:0163,copyprot_arm,void (void),"writes failed-state bytes (06c9:424a/4275/42ad/1bf7, DS:5656=0x63)"
+func,13a8:0189,copyprot_pass,void (void),"06c9:1bf7=RETF, DS:5656=0, return 0"
+global,DS:0040,drive_disk_type,u16[] by drive,type+1 of disk known in drive
+global,DS:004E,disk_id_codes,char[5]x5,obfuscated MASTER/CAR/SCENERY/PLAY/PROGRAM ids
+global,DS:0068,disk_type_names,char*[5],MASTER CAR SCENERY PLAY PROGRAM
+global,DS:0072,master_serial,char[],from diskid.dat
+global,DS:007C,protect_failed,u16,init 1; 0 = protection passed; port sets 0
+global,DS:007E,logo_lines_a,s16[38x4],title line logo
+global,DS:01AE,logo_lines_b,s16[38x4],DSI line logo
+global,DS:02DE,showroom_speed,s16,0..200
+global,DS:02E0,showroom_dist,s16,pixels
+global,DS:02E2,menu_sel,s16,GAMEOPT selection 0..5
+global,DS:02E4,difficulty,s16,0..11
+global,DS:02E6,gas_attendant,char*[10],GASSTUFF sprite per stage
+global,DS:02FA,rating_msgs,char*[24],rating*12+variant*4 (+2 second line)
+global,DS:032A,end_guy_frame2,s16[19],ending guy frame x2
+global,DS:0350,end_cop_frame2,s16[19],ending cop frame x2
+global,DS:0376,end_frame_ticks,s16[19],ending frame durations
+global,DS:039C,drive_names,char[5]x7,none A: .. F:
+global,DS:0504,install_items,char*[7],install menu strings
+global,DS:23A6,car_bin,u8[0x34F],player <car>.BIN
+global,DS:331C,opp_penalties,s16,opponent incidents
+global,DS:346A,stage_dat,u8[0x1E5E],unpacked <scn><n>.DAT; starts with scenery archive name
+global,DS:379E,stage_score_k,s16,score factor from stage DAT
+global,DS:37A0,rating_speed1,s16,mph threshold rating 0
+global,DS:37A2,rating_speed2,s16,mph threshold rating 1
+global,DS:37A4,rating_speed3,s16,mph threshold rating 2
+global,DS:380F,stage_length,s16,1/420 mile
+global,DS:536C,crashes,s16,stage crash count
+global,DS:536E,engines_blown,s16,stage count
+global,DS:5370,tickets,s16,speeding tickets
+global,DS:5372,opp_time,s16,opponent stage time 0.1 s
+global,DS:5374,player_dist,s16,stage distance 1/420 mile
+global,DS:5376,opp_dist,s16,opponent distance
+global,DS:5616,opp_bin,u8[0x20],<opp>O.BIN
+global,DS:5656,protect_sabotage,u8,0x63 failed / 0 passed; port sets 0
+global,DS:5657,protect_drive,u8,drive for protection check
+global,DS:83C8,ss_ticks,s16,showroom tick counter
+global,DS:83CA,ss_frame_ticks,s16,.SS ticks per frame
+global,DS:83CC,ss_frame,s16,current window frame
+global,DS:83CE,ss_frames,s16,.SS frame count
+global,DS:83D0,menu_prev_sel,s16,menu redraw trigger
+global,DS:83D2,results_y,s16,results text cursor y
+global,DS:8420,total_score,s32,game score
+global,DS:8424,lives,s16,5 at start; +1 per gas station
+global,DS:8426,first_hd_drive,s16,floppy count + 1
+global,DS:8428,player_car_code,char[],car code
+global,DS:842E,scn_font,far,<scn>.FNT
+global,DS:8432,diff_c,s16,90..180 from difficulty
+global,DS:8434,opp_total_score,s32,
+global,DS:8438,avg_speed,s32,player stage mph
+global,DS:843C,ncars_main,s16,car count before extra car disks
+global,DS:843E,game_mode,s16,0 clock / 1 duel
+global,DS:8640,songs,far,songs.bin
+global,DS:8644,disk_path,char[],drive + name from ensure_disk
+global,DS:8658,out_of_gas,s16,count
+global,DS:865A,stage,s16,0-based stage index
+global,DS:865C,scenery_table,32-byte records x31,SCENES.DAT records
+global,DS:8A1C,drive_of_type,s16[5],drive per disk type (8A1E/8A20/8A22 from select.dat)
+global,DS:8A76,scn_car1_arc,far,<scn>CAR1
+global,DS:8A7A,ncars,s16,
+global,DS:8A7C,scn_car2_arc,far,<scn>CAR2
+global,DS:8A80,scn_disk,s16,disk type of scenery
+global,DS:8A82,car_disk,s16,disk type of player car
+global,DS:8A84,scn_car3_arc,far,<scn>CAR3
+global,DS:8A8C,data_disk,s16,disk type holding game data
+global,DS:8A8E,road_arc,far,ROAD
+global,DS:8A92,dash_arc,far,<car>DASH
+global,DS:8A96,cop_arc,far,COP
+global,DS:8A9A,attract,s16,demo mode
+global,DS:8C9E,start_drive,s16,
+global,DS:8CA2,page,far,320x200 offscreen page
+global,DS:8CF6,opp_total_time,s16,
+global,DS:8CF8,penalties,s16,crashes+engines+out_of_gas
+global,DS:8CFA,scn_idx,s16,
+global,DS:8CFC,boot_disk_type,s16,
+global,DS:8CFE,opp_idx,s16,
+global,DS:8D00,gameopt_spr,far[9],cloc comp ycar ocar scen inst txt0 txt1 arrw
+global,DS:8D24,car_table,30-byte records x31,CARS.DAT records
+global,DS:90A8,diff_easy,s16,difficulty < 4 and not attract
+global,DS:90AA,nscenes,s16,
+global,DS:90AC,opp_stage_score,s32,
+global,DS:90B0,opp_car_code,char[],
+global,DS:90B6,catalog_dirty,s16,
+global,DS:90B8,hisc_block,u8[0x154],hisc.dat image (top 6 table at +0)
+global,DS:9154,best_time,s16[10],hisc block +0x9C
+global,DS:9168,best_avg,s32[10],hisc block +0xB0
+global,DS:9190,best_score,s32[10],hisc block +0xD8
+global,DS:91B8,best_cum_time,s32[10],hisc block +0x100
+global,DS:91E0,best_cum_score,s32[10],hisc block +0x128
+global,DS:9208,hisc_checksum,u32,hisc block +0x150
+global,DS:920C,diff_b,s16,127..255 from difficulty
+global,DS:9210,total_time,s16,0.1 s
+global,DS:9212,scn_code,char[],scenery code
+global,DS:9218,player_name,char[16],name entry buffer
+global,DS:9228,opp_road_arc,far,<opp>ROAD
+global,DS:922C,num_drives,s16,
+global,DS:922E,diff_score_pct,s16,33..100
+global,DS:9258,outran_police,u8,set by 06c9:5844; triggers police ending
+global,DS:925C,stage_score,s32,
+global,DS:9260,scenery_arc,far,archive named in stage DAT
+global,DS:9264,opp_disk,s16,
+global,DS:9266,car_idx,s16,
+global,DS:940C,stage_sgn,far,<scn><n>.SGN
+global,DS:9410,last_stage,s16,
+global,DS:9412,opp_avg_speed,s32,
+global,DS:9416,diskid_buf,char[],
+global,DS:942A,voices,far,voices.bin
+global,DS:942E,stage_time,s16,0.1 s

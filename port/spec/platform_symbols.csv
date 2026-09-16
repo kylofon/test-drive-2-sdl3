@@ -1,0 +1,467 @@
+kind,address,name,type,notes
+func,06c9:412c,drive_sound_update,near,every tick: rpm slew; DS:5F2E slots 0x55/0x56/0x58 (simulation spec)
+func,06c9:5d00,gfx_video_hook,void(void),empty retf in EGA/Tandy; CGA build restores 3D8h/3D9h
+func,06c9:5d01,far_memcpy,"void(u16 soff,u16 sseg,u16 doff,u16 dseg,u16 n)",rep movsb between far buffers
+func,06c9:5d1e,wait_key_paused,void(void),pause flag around getkey_wait; no direct callers
+func,06c9:5d2e,make_tick_id,char*(void),int 1Ah tick count -> 4 bytes at DS:52C2
+func,06c9:5d4e,dos_num_drives,int(void),AH=19h then AH=0Eh; returns logical drive count
+func,06c9:5d5b,set_file_hidden,int(char*name),AX=4301h CX=2; 1=error 0=ok
+func,06c9:5d74,bios_floppy_count,int(void),int 11h floppy count; minimum 2
+func,06c9:5d83,bios_ticks,u16(void),word 0040:006C
+func,06c9:5d8d,bios_ticks_since,u16(u16 t0),0040:006C - t0
+func,06c9:5d9e,gfx_set_clip,"void(far Desc*,s16 x0,s16 x1,s16 y0,s16 y1)",descriptor clip + live copy if current
+func,06c9:5dfb,gfx_set_clip_current,"void(s16 x0,s16 x1,s16 y0,s16 y1)",live copy CS:AF46..AF4C only
+func,06c9:5e1c,file_paras,u16(char*name),file size in paragraphs rounded up; fatal %s FILE ERROR
+func,06c9:5e8a,unpacked_paras,u16(char*name),u24 at file+1 in paragraphs rounded up
+func,06c9:5ef4,find_first,char*(char*spec),AH=4Eh attr 6 DTA DS:5DEE; returns DS:5D88 or 0
+func,06c9:5f4e,find_next,char*(void),AH=4Fh; returns DS:5D88 or 0
+func,06c9:5f64,herc_init,void(void),Hercules graphics page 1; DS:5E6E=1
+func,06c9:5fbc,video_shutdown,void(void),EGA: gfx_shutdown; Hercules: text mode 7
+func,06c9:601c,timer_install_drive,void far(void),div 0x2E9C; chain reload 5; BIOS chain countdown 100
+func,06c9:603c,timer_install_menu,void far(void),div 0x2E9C; chain forever; no callers
+func,06c9:6059,timer_install_div,void far(int div),reload 0x10000/div; chain forever; called with 0x2E9C
+func,06c9:607a,timer_install_div_countdown,void far(int div),reload 0x10000/div; countdown 100; no callers
+func,06c9:6099,timer_install_common,tail(DX=div),clear routine list; speaker off; hook INT 8; PIT ch0
+func,06c9:610a,timer_restore,void far(void),unhook INT 8; PIT ch0 65536; speaker off
+func,06c9:614c,timer_add_routine,void far(farfn fn),5-slot list DS:5F12; fatal when full
+func,06c9:6180,timer_remove_routine,void far(farfn fn),remove and shift list
+func,06c9:61bf,timer_isr,interrupt,99.9985 Hz tick; counters; BIOS chain; routine list
+func,06c9:6230,timer_bios_chain,near,countdown then call old INT 8
+func,06c9:6269,sfx_tick,void far(void),timer routine: effect/engine byte-code stream player (driving)
+func,06c9:642e,gfx_shutdown,void(void),clear screen; INT 10h mode 3; border 0
+func,06c9:645a,hotkey_joystick_on,void far(void),Ctrl-J: DS:6CFC=1; paused joystick calibration
+func,06c9:646f,hotkey_keyboard_on,void far(void),Ctrl-K: DS:6CFC=0; KEYBOARD ON
+func,06c9:6488,hotkey_sound_toggle,void far(void),Ctrl-S: toggle DS:5EFB bit0
+func,06c9:64c7,hotkey_music_toggle,void far(void),Ctrl-Q: toggle DS:5EFB bit1
+func,06c9:6508,hotkey_pause,void far(void),Ctrl-P: paused 16fc:0358
+func,06c9:6518,hotkey_exit,void far(void),Ctrl-X: paused 16fc:007c
+func,06c9:6528,kbd_dispatch,int far(int key),handler tables DS:6048/DS:6148; 0 if handled
+func,06c9:6585,hotkey_set,void far(int key; u16 off),DS:6048[key]=handler (seg 06c9)
+func,06c9:65c5,getkey_menu,int far(void),INT16 key via kbd_dispatch else joystick code
+func,06c9:6601,getkey_drive,u16(void),typed key for sim; peek only if SS!=DS
+func,06c9:6620,input_drive_bits,u16(void),held keys -> joystick bits else joy_read
+func,06c9:6686,joy_read,u16(void),port 201h + adaptive calibration (TD1 0xA12F)
+func,06c9:680a,joy_calib_reset,void(void),joy on; xmin=ymin=0x50 xmax=ymax=0
+func,06c9:6828,joy_dir_index,u16(u16 bits),DS:629E[bits&15] -> 0..8
+func,06c9:6839,joy_analog_x,s16(void),dead; no function header
+func,06c9:684c,joy_analog_y,s16(void),dead; no function header
+func,06c9:6860,kbd_install,void(void),hook INT 9 and INT 16h
+func,06c9:68c4,kbd_restore,void(void),unhook INT 9 and INT 16h
+func,06c9:6907,kbd_int9_isr,interrupt,key-down table + translated one-key buffer
+func,06c9:69b7,kbd_int16_isr,interrupt,AH=0 read/clear (non-blocking) AH=1 peek AH=2 shift
+func,06c9:69f2,key_is_down,u8(u16 scan),dead
+func,06c9:69fe,getkey,int far(void),call far [DS:64DC]
+func,06c9:6a03,getkey_raw,u16(void),keyboard only; no hotkeys
+func,06c9:6a17,kbd_set_getkey_fn,void far(farfn),DS:64DC
+func,06c9:6a28,kbd_get_getkey_fn,farfn far(void),DS:64DC
+func,06c9:6a30,getkey_wait,int far(void),blocking getkey
+func,06c9:6a3b,kbd_flush,int far(void),drain INT16 buffer; returns 0
+func,06c9:6a4a,getkey_until_deadline,int far(void),key or 0 when ticks >= DS:6818
+func,06c9:6a6a,getkey_timeout,int far(long n),key or 0 after n ticks
+func,06c9:6aa2,load_file_at,"farptr(char*name,u16 off,u16 seg)",reads whole file in 0x4000 chunks; fatal %s FILE ERROR
+func,06c9:6b02,rle_decode,"farptr(u16 in_off,u16 in_seg,u16 out_off,u16 out_seg,u16 total_paras)",RLE pass (type 1); returns out_seg:0000
+func,06c9:6b97,rle_run_pass,near (frame of 6b02),RLE run pass; stops after u32 count input bytes
+func,06c9:6c6e,rle_seq_pass,near (frame of 6b02),RLE sequence pass; returns output length
+func,06c9:6d18,load_raw,u8 far * far(char *name),raw file into cached block seg:0 (resource spec)
+func,06c9:6d50,unpack_file,farptr(char*name),cache check reserve load and decode 1..k passes; INVALID PACK TYPE
+func,06c9:6e4e,res_find_opt,"farptr(farptr arc,char*name4)",locateshape variant returning 0:0 if missing
+func,06c9:6e59,res_find,"farptr(farptr arc,char*name4)",locateshape; normalized far ptr; fatal if missing
+func,06c9:6f1e,mem_init,void(u16 top_seg),DOS heap block (first call) and clear all memory records
+func,06c9:6f86,mem_init_default,void(void),mem_init(0xA000)
+func,06c9:6f93,mem_init_reserve,void(u16 paras),mem_init(0xA000) then lower heap top; no callers
+func,06c9:6fb2,mem_gap,u16(void),cache start minus low-stack end; no callers
+func,06c9:6fc4,mem_low_used,u16(void),low-stack end minus heap base; no callers
+func,06c9:6fd6,mem_free_total,u16(void),heap top minus low-stack end
+func,06c9:6fe8,far_copy_down,"void(u16 src_seg,u16 dst_seg,u16 paras)",forward paragraph copy
+func,06c9:7030,far_move_up,"void(u16 src_seg,u16 dst_seg,u16 paras)",backward paragraph copy (memmove dst>src)
+func,06c9:7083,path_basename,char*(char*path),pointer after last colon or backslash
+func,06c9:70a3,mem_reserve,"farptr(char*name,u16 paras)",reservememory: push block on low stack evicting cache
+func,06c9:7147,cache_compact,void(void),pack kept cache blocks against heap top
+func,06c9:71b4,mem_reclaim_cached,farptr(char*name),move cached block back to low stack or return 0:0
+func,06c9:7273,mem_is_cached,int(char*name),1 if name is in the cache region
+func,06c9:72c6,mem_release_cache_old,farptr(farptr blk),free block and cache it at the bottom of the cache
+func,06c9:736b,mem_release_cache,farptr(farptr blk),free block and cache it at the top of the cache
+func,06c9:7490,mem_free,void(farptr blk),free low-stack block; BLOCK NOT FOUND
+func,06c9:74d4,mem_size,u16(farptr blk),block size in paragraphs; no callers
+func,06c9:7501,mem_slide_down,farptr(farptr blk),move block down onto previous in-use block; no callers
+func,06c9:758a,music_play,void far(u8 far *songs; int n),start SONGS.BIN song n if DS:5EFB==3
+func,06c9:75c8,music_set_voices,void far(u8 far *voices),DS:65F7 seg / DS:65F9 off
+func,06c9:75d9,music_set_6625,void far(u16 w6627; u16 w6625),write-only globals; no callers
+func,06c9:75ea,music_tick,void far(void),timer routine: SONGS.BIN pattern player (menus)
+func,06c9:780e,rand8,u8(void),table PRNG DS:66E6/DS:66E8
+func,06c9:782c,gfx_free_buffer,void(far Desc*),row pool CS:B269 -= (h+13)*2; free block via 06c9:7490
+func,06c9:7866,write_file_or_die,"int(char*name,u16 off,u16 seg,u32 len)",create+write 0x4000 chunks; fatal on error
+func,06c9:7874,write_file,"int(char*name,u16 off,u16 seg,u32 len)",same; errors ignored; returns 0
+func,06c9:78f8,gfx_targets_save,void(u16*),26 words CS:AF3A -> DS buffer
+func,06c9:7918,gfx_targets_restore,void(u16*),DS buffer -> CS:AF3A
+func,06c9:7934,sound_off,void far(void),no callers
+func,06c9:7940,sound_on,void far(void),no callers
+func,06c9:7946,sfx_set_loop,void far(u8 far *s),loop stream; starts now if no one-shot
+func,06c9:7971,sfx_clear_loop,void far(void),DS:5EFD=0
+func,06c9:7977,sfx_play,void far(u8 far *s),one-shot stream now
+func,06c9:798f,sfx_is_playing,int far(void),DS:5EFC; no callers
+func,06c9:7995,sfx_stop,void far(void),DS:5EEE=0; no callers
+func,06c9:799c,sfx_play_if_enabled,void far(u8 far *s),if DS:5EFB==3; no callers
+func,06c9:79bb,music_on,void far(void),no callers
+func,06c9:79c1,music_off,void far(void),no callers
+func,06c9:79c8,ticks_get,long far(void),DS:5E8C
+func,06c9:79d2,ticks_since,long far(long t),no callers
+func,06c9:79ea,ticks_lap,long far(void),DS:681C; no callers
+func,06c9:7a07,ticks_reset,void far(void),no callers
+func,06c9:7a10,deadline_set,void far(long n),DS:6818 = now + n
+func,06c9:7a27,deadline_wait,void far(void),busy wait
+func,06c9:7a3b,deadline_passed,int far(void),1 if now >= DS:6818
+func,06c9:7a55,delay_ticks,void far(long n),busy wait n ticks
+func,06c9:7a82,gfx_set_text_colours,void(u16 fg; u16 bg),DS:6820/6822
+func,06c9:7a93,gfx_set_text_cursor,void(u16 x; u16 y),dead
+func,06c9:7aa4,text_state_save,void(u16 *buf),11 words DS:6820
+func,06c9:7abd,text_state_restore,void(u16 *buf),11 words DS:6820
+func,06c9:7c16,huff_decode,"u32(u16 in_off,u16 in_seg,u16 out_off,u16 out_seg,u16 total_paras)",Huffman pass (type 2); returns header size; n bit7 = delta mode
+func,06c9:7d5e,gfx_select_target,void(far Desc*),13 words -> CS:AF3A
+func,06c9:7d7c,blit_and_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",clipped AND at x-hot_x
+func,06c9:7d9c,blit_and_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",clipped AND at x
+func,06c9:7dbc,blit_and_clip_own,"void(u16 off,u16 seg)",clipped AND at header x
+func,06c9:808a,blit_and_hot,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped AND
+func,06c9:80aa,blit_and_raw,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped AND
+func,06c9:80ca,blit_and_own,"void(u16 off,u16 seg)",unclipped AND
+func,06c9:82d0,rect_clear_plane,asm,RAM constant-plane clear (ES:DI DX SI CX BX AL)
+func,06c9:8336,rect_set_plane,asm,RAM constant-plane set
+func,06c9:839c,rect_xor_plane,asm,RAM constant-plane invert
+func,06c9:840a,gfx_clear_screen,void(u8 colour),A000h all planes
+func,06c9:843e,gfx_clear_clip,void(u8 colour),fill live clip rectangle
+func,06c9:8582,gfx_draw_line,"void(s16 x0,s16 y0,s16 x1,s16 y1,u8 colour)",clipped line; pixel = colour
+func,06c9:89a2,gfx_fill_rect_clip,"void(s16 x,s16 y,s16 w,s16 h,u8 colour)",clip then fill_rect body
+func,06c9:8a0c,gfx_fill_rect,"void(s16 x,s16 y,s16 w,s16 h,u8 colour)",unclipped rectangle; colour low nibble
+func,06c9:8cd8,gfx_dissolve4,"void(u16 off,u16 seg,u8 phase)",screen dissolve masks 11 88 44 22
+func,06c9:8f12,gfx_dissolve8,"void(u16 off,u16 seg,u8 phase)",screen dissolve (TD1 0x768B)
+func,06c9:90e8,gfx_init_ega,void(void),mode 0Dh + palette DS:6848
+func,06c9:916c,blit_copy_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",clipped REPLACE
+func,06c9:91a4,blit_copy_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",clipped REPLACE
+func,06c9:91d6,blit_copy_clip_own,"void(u16 off,u16 seg)",clipped REPLACE at header x/y
+func,06c9:9c58,blit_copy_hot,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped REPLACE
+func,06c9:9c90,blit_copy_raw,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped REPLACE
+func,06c9:9cc2,blit_copy_own,"void(u16 off,u16 seg)",unclipped REPLACE at header x/y
+func,06c9:a530,gfx_draw_text,void(char *s; u16 x; u16 y),TD1 0x4BD0
+func,06c9:a547,gfx_draw_text_at_cursor,void(char *s),TD1 0x4BE7; no callers
+func,06c9:a6d8,blit_or_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",clipped OR
+func,06c9:a6f8,blit_or_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",clipped OR
+func,06c9:a718,blit_or_clip_own,"void(u16 off,u16 seg)",clipped OR
+func,06c9:a9d2,blit_or_hot,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped OR
+func,06c9:a9f2,blit_or_raw,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped OR
+func,06c9:aa12,blit_or_own,"void(u16 off,u16 seg)",unclipped OR
+func,06c9:abfa,gfx_set_palette,void(u16 ds_table),INT 10h AX=1002h
+func,06c9:ac1c,grab_into_sprite_hot,"void(u16 off,u16 seg,s16 x,s16 y)",screen -> sprite planes; no callers
+func,06c9:ac40,grab_into_sprite_raw,"void(u16 off,u16 seg,s16 x,s16 y)",screen -> sprite planes; stores x/y in header
+func,06c9:ac64,grab_into_sprite_own,"void(u16 off,u16 seg)",screen -> sprite planes at x&~7; no callers
+func,06c9:ad22,rect_clear_plane_ega,asm,EGA constant-plane clear
+func,06c9:ad8b,rect_set_plane_ega,asm,EGA constant-plane set
+func,06c9:adf4,rect_xor_plane_ega,asm,EGA constant-plane invert
+func,06c9:ae62,gfx_scroll_window,"void(s16 x,s16 y,s16 w,s16 h,s16 step,u16 soff,u16 sseg,s16 srow)",write-mode-1 scroll + sprite row
+func,06c9:b0fe,gfx_create_buffer,"far Desc*(u16 width_px,u16 h,u16 planes)",WINDOW block + descriptor
+func,06c9:ba3c,gfx_plot,"void(s16 x,s16 y,u8 colour)",single pixel
+func,06c9:bac8,blit_xor_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",clipped XOR
+func,06c9:bae8,blit_xor_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",clipped XOR
+func,06c9:bb08,blit_xor_clip_own,"void(u16 off,u16 seg)",clipped XOR
+func,06c9:c132,blit_xor_hot,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped XOR
+func,06c9:c152,blit_xor_raw,"void(u16 off,u16 seg,s16 x,s16 y)",unclipped XOR
+func,06c9:c172,blit_xor_own,"void(u16 off,u16 seg)",unclipped XOR
+func,06c9:c63e,getkey_until_slow_deadline,int far(void),buggy u32 compare
+func,06c9:c65c,wait_key_slow,int far(long n),no callers; buggy u32 compare
+func,06c9:c692,slow_ticks_get,long far(void),DS:5E90
+func,06c9:c69c,slow_deadline_set,void far(long n),DS:68D6 = slow + n
+func,06c9:c6b3,slow_deadline_wait,void far(void),no callers; buggy u32 compare
+func,06c9:c6c5,delay_slow,void far(long n),busy wait n slow ticks (5 ticks each)
+func,06c9:c6f0,res_count,u16(far arc),archive resource count
+func,06c9:c701,res_ptr,"far ptr(far arc,u16 index)",normalised pointer to resource index (offset table not relocated)
+func,06c9:c760,res_name,"void(far arc,u16 index,u32 *out)",4-char name of resource index
+func,06c9:c784,gfx_grab_screen,"void(s16 sx,s16 sy,s16 dx,s16 dy,s16 w_px,s16 h)",screen rect -> current RAM target
+func,06c9:c838,res_unflip_archive,"void(far arc,far tmp)",column-major plane blocks -> row-major
+func,06c9:c958,draw_cursor_glyph,"void(s16 x,s16 y,u16 idx)",XOR underline cursor
+func,06c9:c984,gfx_draw_line_or,"void(s16 x0,s16 y0,s16 x1,s16 y1,u8 colour)",TD1-style OR line (calibration screen)
+func,13a3:0006,cos_deg8,s16(AL deg),8.8 cosine via sin table; not CRT
+func,13a3:0012,sin_deg8,s16(AL s8 deg),8.8 sine table DS:54AA; not CRT
+func,13a3:0038,tan_deg8,s16(AL s8 deg),8.8 tangent table DS:5560; not CRT
+func,13a8:002e,copy_protection_check,far,floppy track 39 check; self-modifying; not CRT; dropped
+func,13a8:03f8,_astart,entry,MSC 5.x startup (MZ entry point)
+func,13a8:04be,_cinit,far,MSC 5.x
+func,13a8:0582,exit,void(int),MSC 5.x
+func,13a8:0599,_exit,void(int),MSC 5.x
+func,13a8:05e0,_ctermsub,near,MSC 5.x
+func,13a8:060d,_initterm,near,MSC 5.x
+func,13a8:0620,_FF_MSGBANNER,far,MSC 5.x
+func,13a8:064a,_chkstk,far,MSC 5.x
+func,13a8:066e,_nullcheck,far,MSC 5.x
+func,13a8:0694,_setargv,far,MSC 5.x (likely)
+func,13a8:0826,_setenvp,far,MSC 5.x (likely)
+func,13a8:088c,_NMSG_TEXT,far,MSC 5.x message table DS:82C4
+func,13a8:08b7,_NMSG_WRITE,far,MSC 5.x
+func,13a8:08e2,_myalloc,near,MSC 5.x startup heap helper (guess)
+func,13a8:094a,_dosmaperr,near,MSC 5.x (likely)
+func,13a8:0978,fclose,int(FILE*),MSC 5.x
+func,13a8:0a3a,flushall,int(void),MSC 5.x (likely)
+func,13a8:0a6e,fopen,"FILE*(char*,char*)",MSC 5.x
+func,13a8:0a9c,fprintf,"int(FILE*,char*,...)",MSC 5.x
+func,13a8:0ae0,fscanf,"int(FILE*,char*,...)",MSC 5.x
+func,13a8:0b00,printf,"int(char*,...)",MSC 5.x
+func,13a8:0b42,_filbuf,far,MSC 5.x (likely)
+func,13a8:0be8,_getbuf,near,MSC 5.x (likely)
+func,13a8:0c4e,_flsbuf,far,MSC 5.x (likely)
+func,13a8:0df0,_freebuf,far,MSC 5.x (likely)
+func,13a8:0e20,_openfile,far,MSC 5.x (likely)
+func,13a8:0f16,_stbuf,far,MSC 5.x (likely)
+func,13a8:0fc4,_ftbuf,far,MSC 5.x (likely)
+func,13a8:105c,fflush,int(FILE*),MSC 5.x (likely)
+func,13a8:10c6,_input,far,MSC 5.x scanf engine
+func,13a8:192c,_output,far,MSC 5.x printf engine
+func,13a8:219a,_getstream,far,MSC 5.x
+func,13a8:21d6,ungetc,"int(int,FILE*)",MSC 5.x (likely)
+func,13a8:223e,close,int(int),MSC 5.x
+func,13a8:225e,lseek,"long(int,long,int)",MSC 5.x
+func,13a8:22d8,open,"int(char*,int,...)",MSC 5.x
+func,13a8:247c,read,"int(int,char*,unsigned)",MSC 5.x
+func,13a8:2558,write,"int(int,char*,unsigned)",MSC 5.x
+func,13a8:2682,stackavail,far,MSC 5.x (likely)
+func,13a8:2696,free,void(void*),MSC 5.x _nfree (likely)
+func,13a8:26a8,malloc,void*(unsigned),MSC 5.x _nmalloc (likely)
+func,13a8:2852,_brkctl,far,MSC 5.x (likely)
+func,13a8:2916,strcat,"char*(char*,char*)",MSC 5.x
+func,13a8:2956,strcpy,"char*(char*,char*)",MSC 5.x
+func,13a8:2988,strcmp,"int(char*,char*)",MSC 5.x
+func,13a8:29b4,strlen,int(char*),MSC 5.x
+func,13a8:29d0,itoa,"char*(int,char*,int)",MSC 5.x
+func,13a8:29ec,ultoa,"char*(unsigned long,char*,int)",MSC 5.x (likely; shared body 2bb0)
+func,13a8:29f6,abort,void(void),MSC 5.x: Abnormal program termination; raise(SIGABRT); _exit(3)
+func,13a8:2a18,isatty,int(int),MSC 5.x
+func,13a8:2a3c,sprintf,"int(char*,char*,...)",MSC 5.x
+func,13a8:2a96,sscanf,"int(char*,char*,...)",MSC 5.x
+func,13a8:2ad8,filelength,long(int),MSC 5.x
+func,13a8:2b40,stricmp,"int(char*,char*)",MSC 5.x case-insensitive compare
+func,13a8:2b82,memset,"void*(void*,int,unsigned)",MSC 5.x
+func,13a8:2c1c,raise,int(int),MSC 5.x (likely)
+func,13a8:2cb4,signal,"void*(int,void*)",MSC 5.x (likely)
+func,13a8:2d57,_sigentry,far,MSC 5.x signal table lookup (likely)
+func,13a8:2e20,unlink,int(char*),MSC 5.x
+func,13a8:2e2e,_dos_getdrive,void(unsigned*),MSC 5.x
+func,13a8:2e42,_aFldiv,far,MSC 5.x long divide
+func,13a8:2ee8,_aFlmul,far,MSC 5.x long multiply
+func,13a8:2f1c,_aFlrem,far,MSC 5.x long remainder (likely)
+func,13a8:2fc4,_aFlshl,far,MSC 5.x long shift left
+func,13a8:2fd0,_aFNalshl,far,MSC 5.x long shift left through pointer (likely)
+func,16a7:0002,fatal,"void(char*fmt,...)",gfx_shutdown kbd_restore timer_restore printf abort
+func,16aa:0002,toupper_c,int(char c),a-z -> A-Z
+func,16ab:000c,draw_text_centered,void(char *s; u16 y),image 0x16ABC; x = target_w/2 - len*4
+func,16af:0006,draw_rect_outline,void(s16 x0; s16 y0; s16 x1; s16 y1; u16 c),4 fill_rects
+func,16b8:0000,find_nth_file,"char*(char*spec,int n)",find_first then find_next n-1 times
+func,16bb:000a,edit_text_line,"int(char*buf,int maxlen,int x,int y,u32 timeout)",one-line editor; returns exit key or 0 on timeout
+func,16bb:02a8,input_text_line,"int(char*buf,int maxlen,int x,int y,u32 timeout)",fill spaces then edit_text_line
+func,16bb:02e6,edit_cursor_xor,far,draw editor cursor if DS:920E
+func,16eb:000a,res_find_list,"void(farptr arc,char*names,farptr*out)",res_find per 4-char name
+func,16eb:004c,res_find_list_opt,"void(farptr arc,char*names,farptr*out)",res_find_opt per 4-char name
+func,16eb:008e,res_find_list_dup,"void(farptr arc,char*names,farptr*out)",duplicate of 16eb:000a; no callers
+func,16eb:00d0,res_find_list_opt_dup,"void(farptr arc,char*names,farptr*out)",duplicate of 16eb:004c; no callers
+func,16fc:0002,hotkeys_install,void far(void),binds ^J ^K ^P ^Q ^S ^X
+func,16fc:007c,prompt_exit_to_dos,void(void),EXIT TO DOS (Y/N) box at 80;88 160x24
+func,16fc:0220,message_box,void far(char *text; long slow_ticks),bottom-line message then delay_slow
+func,16fc:0358,prompt_pause,void(void),PAUSE box at 0;88 320x24
+func,1748:000e,load_shapes,farptr(char*name),.PES/.ESH search; cache; unpack+UNFLIP or raw load
+func,1748:016a,shapes_paras,u16(char*name),same search; unpacked or file paragraphs; no callers
+func,1769:000e,joy_calibrate_screen,void(void),3x3 calibration screen
+global,CS:7DDC,blit_and_clip_ram_tab,u16[8],RAM AND clipped
+global,CS:80EA,blit_and_ram_tab,u16[8],RAM AND unclipped
+global,CS:82C8,rect_edge_mask,u8[8],00 80 C0 E0 F0 F8 FC FE
+global,CS:857A,line_bit_tab,u8[8],80 40 20 10 08 04 02 01 (8582)
+global,CS:8C78,dissolve4_row_order,u8[12],0B 05 08 02 0A 04 07 01 09 03 06 00
+global,CS:8C84,dissolve4_masks,u8[4],11 88 44 22
+global,CS:8EAE,dissolve8_row_order,u8[12],same as CS:8C78
+global,CS:8EBA,dissolve8_masks,u8[8],01 08 40 02 10 80 04 20
+global,CS:9144,bit_index_tab,u8[16],lowest set bit index
+global,CS:9154,bit_value_tab,u8[16],lowest set bit value
+global,CS:9164,bit_clear_tab,u8[4],0E 0D 0B 07
+global,CS:9168,plane_mask_tab,u8[4],01 02 04 08
+global,CS:9562,blit_copy_clip_ram_tab,u16[8],RAM REPLACE clipped shift routines
+global,CS:9572,blit_clip_ega_tab,u16[8],EGA clipped shift routines (REPLACE/OR/AND)
+global,CS:9F9E,blit_copy_ram_tab,u16[8],RAM REPLACE unclipped
+global,CS:9FAE,blit_ega_tab,u16[8],EGA unclipped (REPLACE/OR/AND)
+global,CS:A738,blit_or_clip_ram_tab,u16[8],RAM OR clipped
+global,CS:AA32,blit_or_ram_tab,u16[8],RAM OR unclipped
+global,CS:AC0C,grab_readmap_tab,u8[16],lowest set bit index
+global,CS:AF3A,gfx_cur,u16[13],live copy of the selected target descriptor
+global,CS:AF3C,gfx_cur_planes,u16[4],plane segments of the live target (A000h = screen)
+global,CS:AF44,gfx_cur_rowtab,u16,near CS ptr to the row table
+global,CS:AF46,gfx_cur_clip,s16[4],clip x0 x1 (bytes) y0 y1
+global,CS:AF4E,gfx_cur_stride,u16,bytes per row
+global,CS:AF50,gfx_cur_pad,u16,plane block padding
+global,CS:AF52,gfx_cur_width,u16,width in pixels
+global,CS:AF54,gfx_screen_desc,u16[13],screen descriptor (A000h x4; rowtab CS:AF6E; 40x200; width 320)
+global,CS:AF6E,gfx_screen_rows,u16[200],y*40
+global,CS:B269,gfx_rowpool_top,u16,next free byte of the descriptor pool (init CS:B26B; limit CS:BA3B)
+global,CS:B26B,gfx_rowpool,u8[2000],descriptor + row table pool
+global,CS:BB28,blit_xor_clip_ram_tab,u16[8],RAM XOR clipped
+global,CS:BB38,blit_xor_clip_ega_tab,u16[8],EGA XOR clipped
+global,CS:C192,blit_xor_ram_tab,u16[8],RAM XOR unclipped
+global,CS:C1A2,blit_xor_ega_tab,u16[8],EGA XOR unclipped
+global,CS:C8FE,cursor_glyph_tab,u16[9],C910 C910 C928 ...
+global,CS:C910,glyph_cursor_thin,sprite,1x8 bottom row set
+global,CS:C928,glyph_cursor_thick,sprite,1x8 two bottom rows set
+global,CS:C97C,line_or_bit_tab,u8[8],80 40 .. 01 (c984)
+global,DS:09B2,drive_buf_desc,far ptr,320x92x4 driving view buffer (scene_render)
+global,DS:1352,stream_engine,bytes,FE00 55:3 56:1 FF engine loop
+global,DS:2E08,pal_normal,u8[17],scene_render copy of the game palette
+global,DS:2E10,pal_flash,u8[17],10..17 00..07 00 (crash flash)
+global,DS:30E8,engine_div,u16[],slot 0x55 by rpm
+global,DS:32AE,noise_div,u16[32],slot 0x58 values
+global,DS:52C2,g_tick_id,char[4],make_tick_id result
+global,DS:52E4,sign_rec,u16[0x2D],working copy of one .SGN record (scene_render)
+global,DS:5494,stream_noise_short,bytes,slot 0x58 x11 (22 ticks)
+global,DS:549F,stream_noise_long,bytes,slot 0x58 x51 (102 ticks)
+global,DS:585A,font8_glyphs,u8[108*8],built-in font 0x20-0x8B
+global,DS:5BC2,font8_table,u16[220],near glyph pointers
+global,DS:5D7A,s_file_error1,char[],%s FILE ERROR (5e1c/5e8a)
+global,DS:5D88,g_find_path,char[100],find_first/next result path
+global,DS:5DEC,g_find_name_ptr,near ptr,name position inside DS:5D88
+global,DS:5DEE,g_dta,u8[43],DOS DTA for find_first/next (name at DS:5E0C)
+global,DS:5E6E,herc_mode,u8,1 after herc_init
+global,DS:5E70,herc_crtc_gfx,u8[12],38 28 2D 0A 7F 06 64 70 02 02 06 07
+global,DS:5E7C,herc_crtc_text,u8[12],61 50 52 0F 19 06 19 19 02 0D 0B 0C
+global,DS:5E88,old_int8,far ptr,saved INT 8 vector
+global,DS:5E8C,tick_count,u32,ticks since install; stops while paused
+global,DS:5E90,slow_count,u32,+1 every 5 ticks (20 Hz)
+global,DS:5E94,chain_countdown_on,u8,BIOS chain budget active
+global,DS:5E95,chain_enable,u8,call BIOS INT 8 each chain period
+global,DS:5E96,chain_budget,s16,BIOS calls left (100)
+global,DS:5E98,chain_reload,s16,ticks per chain period (5)
+global,DS:5E9A,chain_count,s16,countdown to chain period
+global,DS:5E9C,prof_index,u16,always 0
+global,DS:5E9E,prof_counts,u16[40],tick counters by prof_index; never read
+global,DS:5EEE,sfx_seg,u16,current stream segment (0 = none)
+global,DS:5EF0,sfx_off,u16,current stream offset
+global,DS:5EF2,sfx_loop_seg,u16,loop stream segment
+global,DS:5EF4,sfx_loop_off,u16,loop stream offset
+global,DS:5EF6,sfx_note_left,u16,ticks left of event
+global,DS:5EF8,sfx_note_cut,u16,cut point (0 legato)
+global,DS:5EFA,sfx_shift,u8,articulation shift (initial 3)
+global,DS:5EFB,snd_enable,u8,bit0 sound bit1 music (initial 3)
+global,DS:5EFC,snd_busy,u8,one-shot active / song playing (shared)
+global,DS:5EFD,sfx_loop_set,u8,loop stream set
+global,DS:5EFE,timer_paused,u8,ISR skips counters/routines; speaker off
+global,DS:5F00,sfx_loop_cnt,s16[3],loop counters
+global,DS:5F06,sfx_loop_start,u16[3],loop body starts
+global,DS:5F0C,sfx_loop_end,u16[3],loop end marker offsets
+global,DS:5F12,timer_routines,farptr[6],5 routines + terminator
+global,DS:5F2E,sfx_div,u16[93],stream note divisors; slots 0x55-0x58 live
+global,DS:6048,hotkey_table,u16[128],Ctrl/ASCII key handlers (seg 06c9)
+global,DS:6148,key_handlers_ext,u16[133],extended key handlers by scan code
+global,DS:6252,hotkey_busy,u8,re-entrancy guard
+global,DS:6254,joy_menu_keys,u16[16],joystick bits -> menu key codes
+global,DS:6274,joy_menu_last,u16,edge detect
+global,DS:627C,joy_x,u16,raw count
+global,DS:627E,joy_y,u16,raw count
+global,DS:6280,joy_port_pre,u8,port 201h pre-sample
+global,DS:6281,joy_result,u8,result bits
+global,DS:6282,joy_xmin,s16,init 0x50
+global,DS:6284,joy_xmax,s16,init 0
+global,DS:6286,joy_xover_min,s16,spike filter
+global,DS:6288,joy_xover_cnt,u16,spike filter (init 0)
+global,DS:628A,joy_xlo,s16,25% threshold
+global,DS:628C,joy_xhi,s16,75% threshold
+global,DS:628E,joy_ymin,u16,init 0x50
+global,DS:6290,joy_ymax,s16,init 0
+global,DS:6292,joy_yover_min,s16,spike filter
+global,DS:6294,joy_yover_cnt,u16,spike filter (init 0)
+global,DS:6296,joy_ylo,u16,25% threshold
+global,DS:6298,joy_yhi,u16,75% threshold
+global,DS:629A,joy_xscale,u16,0x4000/range; unused
+global,DS:629C,joy_yscale,u16,0x4000/range; unused
+global,DS:629E,joy_dir_map,u8[16],bits -> direction 0..8
+global,DS:62AE,old_int9,far ptr,saved vector
+global,DS:62B2,old_int16,far ptr,saved vector
+global,DS:62B6,kbd_last_key,u16,one-key buffer
+global,DS:62B8,kbd_last_scan,u16,never read
+global,DS:62BA,key_down,u8[0x5A],held state by XT scan code
+global,DS:6314,kbd_xlat_normal,u8[0x5B],scan -> ASCII or 0x80|ext
+global,DS:636F,kbd_xlat_shift,u8[0x5B],
+global,DS:63CA,kbd_xlat_caps,u8[0x5B],Caps Lock key held
+global,DS:6425,kbd_xlat_ctrl,u8[0x5B],
+global,DS:6480,kbd_xlat_alt,u8[0x5B],
+global,DS:64DC,getkey_fn,far ptr,current getkey (06c9:65c5)
+global,DS:64E0,s_file_error2,char[],%s FILE ERROR\r (6aa2)
+global,DS:6503,s_bad_pack,char[],%s INVALID PACK TYPE\r
+global,DS:651A,s_locateshape,char[],locateshape - %-4.4s SHAPE OR SOUND NOT FOUND\r
+global,DS:654A,s_reserve_oom,char[],reservememory - OUT OF MEMORY LOADING %s\r
+global,DS:6574,s_reserve_oob,char[],reservememory - OUT OF MEMORY BLOCKS LOADING %s\r
+global,DS:65A5,s_block_not_found,char[],memory manager - BLOCK NOT FOUND at SEG= %x\r
+global,DS:65D2,mus_start,u8,start request
+global,DS:65D3,mus_tempo,u16,ticks per length unit (low byte used; initial 0x14)
+global,DS:65D5,mus_transpose_base,u16,always 0
+global,DS:65D9,mus_transpose,u16,pattern transpose
+global,DS:65E1,mus_on_left,u16,tone ticks left
+global,DS:65E5,mus_off_left,u16,silent ticks left
+global,DS:65E9,mus_pat,u16,next pattern event offset
+global,DS:65ED,mus_list,u16,next pattern-list entry offset
+global,DS:65EF,mus_list2,u16,song entry word 2 (unused)
+global,DS:65F1,mus_list_loop,u16,song first list entry (FF target)
+global,DS:65F3,mus_list2_loop,u16,unused copy
+global,DS:65F5,mus_seg,u16,SONGS.BIN segment
+global,DS:65F7,mus_voices,far ptr (seg; off),VOICES.BIN (segment word first)
+global,DS:65FB,mus_note,u16,note index incl. transpose
+global,DS:65FD,mus_div,u16,base divisor
+global,DS:65FF,mus_arp_cnt,u16,arpeggio countdown
+global,DS:6601,mus_arp_idx,u16,arpeggio step
+global,DS:6603,mus_vib_cnt,u16,vibrato countdown
+global,DS:6605,mus_vib_dir,s8,vibrato direction
+global,DS:6607,mus_vib_ofs,s16,vibrato divisor offset
+global,DS:6609,mus_voice,u8[28],current voice record
+global,DS:663B,mus_div_table,u16[85],music note divisors
+global,DS:66E6,rand8_idx,u16,rand8 index
+global,DS:66E8,rand8_tab,u8[256],rand8 table
+global,DS:6808,s_file_error3,char[],%s FILE ERROR\r (7866)
+global,DS:6818,deadline,u32,tick deadline
+global,DS:681C,lap_start,u32,ticks_lap reference
+global,DS:6820,text_fg,u16,default 3
+global,DS:6822,text_bg,u16,default 0
+global,DS:6824,text_margin_x,u16,x after newline
+global,DS:6826,text_x,u16,pen x
+global,DS:6828,text_y,u16,pen y
+global,DS:682C,text_glyph_h,u16,8
+global,DS:682E,text_font,far ptr,DS:5BC2 (segment ignored)
+global,DS:6832,text_adv_x,u16,8
+global,DS:6834,text_adv_y,u16,8
+global,DS:6836,text_enabled,u16,must be 1
+global,DS:6838,fill_left_mask,u8[8],FF 7F 3F 1F 0F 07 03 01
+global,DS:6840,fill_right_mask,u8[8],80 C0 E0 F0 F8 FC FE FF
+global,DS:6848,pal_game,u8[17],00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 00
+global,DS:685A,str_exit_to_dos,char[],EXIT TO DOS (Y/N)
+global,DS:686C,str_pause,char[],PAUSE - PRESS ANY KEY TO RESUME
+global,DS:688C,s_ext_pes,char[],.PES
+global,DS:6891,s_ext_esh,char[],.ESH
+global,DS:6897,s_pes_cmp,char[],.PES (stricmp in load_shapes)
+global,DS:689C,s_unflip,char[],UNFLIP block name
+global,DS:68A4,g_shape_ext,near ptr[3],"{.PES .ESH """"}"
+global,DS:68AA,s_pes_cmp2,char[],.PES (shapes_paras)
+global,DS:68B0,s_window,char[],WINDOW block name (gfx_create_buffer)
+global,DS:68CE,plot_bit_tab,u8[8],80 40 20 10 08 04 02 01
+global,DS:68D6,slow_deadline,u32,slow-tick deadline
+global,DS:68DA,g_heap_top,u16,heap end segment; 0 = not initialised
+global,DS:68DC,g_heap_base,u16,heap start segment
+global,DS:68DE,g_mem_cs,u16,CS saved by mem_init (unused)
+global,DS:68E0,g_mem_ds,u16,DS saved by mem_init (unused)
+global,DS:68E2,g_mem_rec,MemRec[50],memory records {name[12] paras seg flags}; [0] bottom sentinel; [49]=DS:6C54 top sentinel
+global,DS:6C66,g_mem_first,near ptr,=DS:68E2
+global,DS:6C68,g_mem_low,near ptr,top record of in-use low stack
+global,DS:6C6A,g_mem_cache,near ptr,first record of cache region
+global,DS:6C6C,g_mem_last,near ptr,=DS:6C54
+global,DS:6CFC,joy_enabled,u8,1 joystick 0 keyboard
+global,DS:6CFE,joy_calibrated,u16,bit0 tested by joy_read
+global,DS:6D00,calib_sq_x,u16[9],calibration squares x
+global,DS:6D12,calib_sq_y,u16[9],calibration squares y
+global,DS:82B8,gfx_cseg,u16,0x06C9 for CS:AFxx reads
+global,DS:842E,scn_font,far ptr,loaded <SCN>.FNT (segment DS:8430 used)
+global,DS:8640,songs_ptr,far ptr,SONGS.BIN
+global,DS:8A88,g_edit_x,s16,text editor x
+global,DS:8A8A,g_edit_y,s16,text editor y
+global,DS:8A9C,g_edit_pos,s16,text editor cursor index
+global,DS:8CA0,g_edit_cursor_h,s16,cursor height 1 or 8 (insert)
+global,DS:8CA2,page_buf_desc,far ptr,320x200x4 page buffer (game_flow)
+global,DS:920E,g_edit_cursor_on,s16,cursor blink state
+global,DS:940C,scn_signs,far ptr,loaded <SCN><n>.SGN (segment DS:940E used)
+global,DS:942A,voices_ptr,far ptr,VOICES.BIN

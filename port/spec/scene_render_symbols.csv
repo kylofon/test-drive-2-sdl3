@@ -1,0 +1,300 @@
+kind,address,name,type,notes
+func,06c9:0002,main_view_load,far void(void),"create main buffer 320x92 at (0,19); handles DS:0704, DS:080E"
+func,06c9:0083,main_view_free,far void(void),free main buffer
+func,06c9:0094,present_main_view,far void(void),"select screen, copy_own(main sprite)"
+func,06c9:00aa,project_front,far void(void),front projection pipeline
+func,06c9:00c9,dbg_present_and_wait,far void(void),unreferenced debug helper
+func,06c9:00e7,draw_front,far void(void),front view into main buffer; fall scroll
+func,06c9:0201,snapshot_front,far void(void),per-frame front state and traffic draw list
+func,06c9:0338,project_front_rows,near void(void),60-row projection
+func,06c9:05f8,build_spans_front,near void(void),per-scanline edge arrays
+func,06c9:06c3,interp_span,"near (a,b,dst) CX=n DX=dy ret 6",Bresenham span interpolation; self-modifying step
+func,06c9:0746,fix_cut_lines_front,near void(void),cliff/drop-off/tunnel cut fix-ups
+func,06c9:088e,clamp_spans,near AX=first BP=end,"clamp 5 span arrays to [0,DS:5348]"
+func,06c9:08cb,clamp_edge_front,near AX=x SI=row*2 -> AX,edge clamp against cut lines
+func,06c9:0919,draw_sky_front,near void(void),"sky, tunnel mouth rectangles, mountains, clouds"
+func,06c9:0b0d,draw_ground_front,near void(void),scanline ground fill
+func,06c9:0bb8,draw_tunnel_walls_front,near void(void),tunnel wall lines
+func,06c9:0c17,span_fill_to,near AX=end BX=colour DI=row,4-plane span fill; jumps to [DS:0702] when the row is full
+func,06c9:0d01,hline,near DX=x0 AX=x1 DI=y BX=colour,draw_line if x0<x1
+func,06c9:0d13,draw_front_objects,near void(void),"far-to-near markings, cliffs, tunnels, road objects, scenery, text signs, poles, cars"
+func,06c9:1ad6,tunnel_rib_front,near SI=row*2,white tunnel frame lines
+func,06c9:1b2c,run_stage,far int(void),stage runner and frame loop; returns (s8)DS:5490
+func,06c9:1c8f,stage_load,far void(void),"stage variables, handle tables, cockpit, sim init"
+func,06c9:1e31,life_reset,far void(void),per-life reset
+func,06c9:1e59,prepare_traffic_lists,far void(void),DAT traffic lists to road pointers; density thinning
+func,06c9:1ee2,mirror_load,far void(void),"create mirror buffer 80x17 at (240,8); handles DS:27BE, DS:28C8"
+func,06c9:1f60,mirror_free,far void(void),free mirror buffer
+func,06c9:1f71,project_mirror,far void(void),mirror projection pipeline
+func,06c9:1f90,dbg_wait_key,far void(void),unreferenced
+func,06c9:1f99,draw_mirror,far void(void),mirror view; composite into main buffer
+func,06c9:2089,snapshot_mirror,far void(void),per-frame mirror state
+func,06c9:21c3,project_mirror_rows,near void(void),25-row projection behind the car
+func,06c9:2477,build_spans_mirror,near void(void),mirror spans
+func,06c9:2542,fix_cut_lines_mirror,near void(void),mirror cut fix-ups
+func,06c9:268a,clamp_edge_mirror,near AX=x SI=row*2 -> AX,mirror edge clamp
+func,06c9:26d8,draw_sky_mirror,near void(void),mirror sky and mountains
+func,06c9:284f,draw_ground_mirror,near void(void),mirror ground fill
+func,06c9:28f9,draw_tunnel_walls_mirror,near void(void),mirror tunnel walls
+func,06c9:2958,draw_mirror_objects,near void(void),"mirror objects, then composite"
+func,06c9:34dc,tunnel_rib_mirror,near SI=row*2,mirror tunnel frame lines
+func,06c9:3532,crash_sequence,far void(void),"hood damage, 7 crack steps, palette flash"
+func,06c9:362f,message_wait_tail,far tail,delay 30 then wait_after_message
+func,06c9:3643,engine_smoke_sequence,far void(void),10-step smoke animation
+func,06c9:36e0,msg_missed_gas,far void(void),You missed the gas station
+func,06c9:3713,msg_too_far_left,far void(void),Too far left to reach pump.
+func,06c9:371f,msg_engine_dead,far void(void),Engine has lost all power...
+func,06c9:372b,msg_suspension_dead,far void(void),Suspension completely gone...
+func,06c9:3737,msg_steering_dead,far void(void),Steering completely shot...
+func,06c9:3743,msg_too_much_damage,far void(void),Car took too much damage...
+func,06c9:374f,msg_fill_er_up,far void(void),Fill 'er up... unless last stage
+func,06c9:375f,msg_lives_left,far void(void),Lives left / last life
+func,06c9:3788,message_box,near void(void),black box with frame
+func,06c9:37d0,cockpit_load,far void(void),"dash handles, inst/gbox buffers, dash+roof, progress line"
+func,06c9:38d4,cockpit_free,far void(void),free inst and gbox buffers
+func,06c9:38f2,cockpit_reset,far void(void),per-life cockpit state
+func,06c9:391f,draw_hud,far void(void),"mirror mask, ticket, radar, progress dots, distance/time"
+func,06c9:3a5f,draw_radar_detector,near void(void),radar sprite
+func,06c9:3a91,draw_progress_dots,near void(void),3 dots on screen row 0
+func,06c9:3ab8,progress_dot,near SI=pos BX=slot*2 DX=colour,move one dot
+func,06c9:3af9,draw_ticket,near void(void),ticket sprite and amount
+func,06c9:3b95,draw_gear_gate,far void(void),gear gate and knob
+func,06c9:3c3a,draw_steering,far void(void),wheel pose and marker
+func,06c9:3cef,draw_instruments,far void(void),needles/bars/digits
+func,06c9:3ea4,draw_number3,near AX=value SI=slot*2,3-digit number
+func,06c9:3ed7,draw_inst_digit,near AL=digit SI=slot*2,one instrument digit
+func,06c9:3efc,select_main_view,far void(void),select_target(DS:09B2)
+func,06c9:3f0d,wait_after_message,far void(void),"drain keys, delay, wait key or 1800 ticks"
+func,06c9:3f40,sim_stage_init,far void(void),see simulation spec
+func,06c9:3ff9,sim_life_reset,far void(void),see simulation spec
+func,06c9:5c98,select_screen,far void(void),platform: select_target(CS:AF54)
+func,06c9:5ca6,create_buffer_like,"far (far sprite) -> DX:AX desc, CX:BX sprite",platform
+func,06c9:7d5e,select_target,"far (off,seg)",platform: copy 13-word descriptor to CS:AF3A
+func,06c9:7d7c,blit_and_clip_hot,"far (off,seg,x,y)",platform
+func,06c9:7dbc,blit_and_clip_own,"far (off,seg)",platform
+func,06c9:808a,blit_and_hot,"far (off,seg,x,y)","platform, unclipped"
+func,06c9:80ca,blit_and_own,"far (off,seg)","platform, unclipped"
+func,06c9:843e,fill_clip,far (colour),platform
+func,06c9:89a2,fill_rect_clip,"far (x,y,w,h,colour)",platform; falls into 8a0c
+func,06c9:916c,blit_copy_clip_hot,"far (off,seg,x,y)",platform
+func,06c9:91a4,blit_copy_clip_raw,"far (off,seg,x,y)",platform
+func,06c9:9c90,blit_copy_raw,"far (off,seg,x,y)","platform, unclipped"
+func,06c9:9cc2,blit_copy_own,"far (off,seg)","platform, unclipped"
+func,06c9:a6d8,blit_or_clip_hot,"far (off,seg,x,y)",platform
+func,06c9:a6f8,blit_or_clip_raw,"far (off,seg,x,y)",platform
+func,06c9:a718,blit_or_clip_own,"far (off,seg)",platform
+func,06c9:a9d2,blit_or_hot,"far (off,seg,x,y)","platform, unclipped"
+func,06c9:a9f2,blit_or_raw,"far (off,seg,x,y)","platform, unclipped"
+func,06c9:aa12,blit_or_own,"far (off,seg)","platform, unclipped"
+func,06c9:b0fe,create_buffer,"far (w_px,h,planes) -> DX:AX desc",platform
+func,06c9:ba3c,plot_pixel,"far (x,y,colour)",platform
+func,06c9:bac8,blit_xor_clip_hot,"far (off,seg,x,y)",platform
+func,06c9:c152,blit_xor_raw,"far (off,seg,x,y)","platform, unclipped"
+func,06c9:c172,blit_xor_own,"far (off,seg)","platform, unclipped"
+func,13a3:0038,tan256_lookup,far AL=deg -> AX,"DS:5560 table, sign from AL"
+func,16eb:000a,res_find_list,"far (far arc,names,table)",platform; aborts on missing
+func,16eb:004c,res_find_list_opt,"far (far arc,names,table)",platform; stores 0 for missing
+global,DS:0520,xs_front,u16[60],195256/(i+4)
+global,DS:0598,ys_front,u16[60],140672/(i+4)
+global,DS:0610,w_front,u16[60],1200/(i+4)
+global,DS:0688,carscale_front,u16[60],car sprite size 0..7
+global,DS:0700,wide_toggle_ptr,u16,road address where road-byte bit 7 changed
+global,DS:0702,row_skip_target,u16,span_fill_to jump target (0B7B / 28BD)
+global,DS:0704,scenery_sky_handles,far[14],rcfA..clo3
+global,DS:073C,front_draw_list,8-byte entries,traffic within 60 units
+global,DS:0804,front_draw_list_len,u16,bytes
+global,DS:0806,opp_row2,u16,opponent distance*2
+global,DS:0808,opp_lat,s16,
+global,DS:080A,cop_row2,u16,police distance*2
+global,DS:080C,cop_lat,s16,
+global,DS:080E,opp_road_handles,far[40],rcr/rc?M/rac/ra?M/brk
+global,DS:098C,cliff_deco_pattern,u16[16],type + count<<8
+global,DS:09AC,r_opp_brake,u8,
+global,DS:09AD,r_cop_brake,u8,
+global,DS:09AE,r_opp_alt,u8,
+global,DS:09B0,start_height_front,s16,static 80
+global,DS:09B2,main_desc,far,
+global,DS:09B6,main_sprite,far,
+global,DS:09BA,main_rowtab,u16,CS offset
+global,DS:09BE,span_bit,u16,
+global,DS:09C0,span_x,u16,
+global,DS:09C4,span_ol,s16[92],
+global,DS:0A7C,span_l,s16[92],
+global,DS:0B34,span_r,s16[92],
+global,DS:0BEC,span_or,s16[92],
+global,DS:0CA4,span_band,s16[92],
+global,DS:0D5C,span_flags,u16[92],
+global,DS:0E14,row_ol,s16[60],
+global,DS:0E8C,row_l,s16[60],
+global,DS:0F04,row_cx,s16[60],
+global,DS:0F7C,row_r,s16[60],
+global,DS:0FF4,row_or,s16[60],
+global,DS:106C,row_sy,s16[60],
+global,DS:10E4,row_clip,s16[60],
+global,DS:115C,row_flags,u8 pairs[60],"flags byte, object byte"
+global,DS:11D4,row_state,u8[60],
+global,DS:124C,row_band,s16[60],
+global,DS:12C4,lat_acc,s16,
+global,DS:12C6,height_acc,s16,
+global,DS:12C8,heading_acc,s16,
+global,DS:12CA,walk_ptr,u16,
+global,DS:12CC,walk_sub,u16,
+global,DS:12CE,top_sy,s16,
+global,DS:12D0,right_cut_x,s16,
+global,DS:12D2,left_sky_x,s16,
+global,DS:12D4,tunnel_in_sy,s16,
+global,DS:12D6,tunnel_in_r,s16,
+global,DS:12D8,tunnel_out_l,s16,
+global,DS:1306,unit_phase,u16,
+global,DS:1308,pitch_acc,s16,
+global,DS:130A,left_cut_x,s16,
+global,DS:130C,right_sky_x,s16,
+global,DS:130E,left_cut_row,u16,
+global,DS:1310,right_cut_row,u16,
+global,DS:1312,left_sky_row,u16,
+global,DS:1314,right_sky_row,u16,
+global,DS:1316,top_row,u16,
+global,DS:1318,tunnel_in_row,u16,
+global,DS:131A,tunnel_out_row,u16,
+global,DS:131C,tunnel_out_sy,s16,
+global,DS:131E,tunnel_in_top,s16,
+global,DS:1320,tunnel_out_top,s16,
+global,DS:1322,tunnel_ceiling,s16,
+global,DS:1324,tunnel_ceiling_row,u16,
+global,DS:1326,tunnel_in_l,s16,
+global,DS:1328,tunnel_out_r,s16,
+global,DS:132A,left_sky_sy2,u16,
+global,DS:132C,right_sky_sy2,u16,
+global,DS:132E,obj_size,u16,
+global,DS:1330,scale4,u16,
+global,DS:1332,scale5,u16,
+global,DS:1336,rec_w0,u16,
+global,DS:1338,rec_w1,u16,
+global,DS:133A,prev_road_byte,u8,
+global,DS:133B,r0_state,u8,
+global,DS:133C,r0_any,u8,
+global,DS:133D,dash_phase,u8,
+global,DS:133E,left_cut_state,u8,
+global,DS:133F,right_cut_state,u8,
+global,DS:1340,r_cop_active,u8,
+global,DS:1341,r_cop_state,u8,
+global,DS:1352,engine_sound_data,data,sound_start_loop argument
+global,DS:1A72,traffic1_handles,far[32],CAR1
+global,DS:1AF2,traffic2_handles,far[32],CAR2
+global,DS:1B72,traffic3_handles,far[32],CAR3
+global,DS:1BF2,cop_car_handles,far[32],COP
+global,DS:1C72,cop_extra_handles,far[80],CLR/brk/CP/cp
+global,DS:1DB2,scenery_handles,far[208],optional
+global,DS:20F2,road_handles,far[132],ROAD archive
+global,DS:2302,result_jump_table,u16[10],
+global,DS:26F6,xs_mirror,u16[25],106416/(i+6)
+global,DS:2728,ys_mirror,u16[25],57324/(i+6)
+global,DS:275A,w_mirror,u16[25],360/(i+6)
+global,DS:278C,carscale_mirror,u16[25],
+global,DS:27BE,mirror_scenery_handles,far[11],rcfC..rmt2
+global,DS:27F6,mirror_draw_list,8-byte entries,
+global,DS:28BE,mirror_draw_list_len,u16,
+global,DS:28C8,opp_front_handles,far[32],
+global,DS:2A1C,r_opp_alt_m,u8,
+global,DS:2A1E,start_height_mirror,s16,static 80
+global,DS:2A20,mirror_desc,far,
+global,DS:2A24,mirror_sprite,far,
+global,DS:2A28,mirror_rowtab,u16,
+global,DS:2A2C,row_ol_m,s16[25],
+global,DS:2A5E,row_l_m,s16[25],
+global,DS:2A90,row_cx_m,s16[25],
+global,DS:2AC2,row_r_m,s16[25],
+global,DS:2AF4,row_or_m,s16[25],
+global,DS:2B26,row_sy_m,s16[25],
+global,DS:2B58,row_clip_m,s16[25],
+global,DS:2B8A,row_flags_m,u8 pairs[25],
+global,DS:2BBC,row_state_m,u8[25],
+global,DS:2BEE,row_band_m,s16[25],
+global,DS:2C20,mirror_scalars,struct,front scalars 12C4..1341 + 0x195C
+global,DS:2C62,unit_phase_m,u16,
+global,DS:2C96,prev_road_byte_m,u8,
+global,DS:2C97,r0_state_m,u8,
+global,DS:2C9E,crack_line_ptrs,u16[7],
+global,DS:2E08,palette_normal,u8[17],
+global,DS:2E10,palette_flash,u8[17],
+global,DS:2E22,crack_line_counts,u8[7],
+global,DS:2E29,seq_counter,u8,
+global,DS:2F46,steer,s16,sim
+global,DS:2F48,heading,s16,sim
+global,DS:2F4C,knob_x,s16,
+global,DS:2F4E,knob_y,s16,
+global,DS:2F50,dot_x,s16[3],
+global,DS:2F58,gate_visible,u8,
+global,DS:2F59,gate_close_delay,u8,
+global,DS:2F5A,redraw_gate,u8,
+global,DS:2F5B,redraw_inst,u8,
+global,DS:2F5C,redraw_hud,u8,
+global,DS:2F5E,wheel_pose,u16,0/2/4
+global,DS:2F60,gbox_desc,far,
+global,DS:2F64,gbox_sprite,far,
+global,DS:2F68,inst_desc,far,
+global,DS:2F6C,inst_sprite,far,
+global,DS:2F78,marker_save_x,u16,
+global,DS:2F7A,marker_save_y,u16,
+global,DS:2F7C,marker_save_sprite,sprite 2x4,
+global,DS:2FAC,dash_handles,far[25],
+global,DS:3010,dash_digit_handles,far[12],
+global,DS:30E2,gate_prev,u8,
+global,DS:30E3,marker_saved,u8,
+global,DS:3346,radar_flags,u16,sim
+global,DS:3348,radar_level,u16,sim
+global,DS:3355,ticket_amount,u8,sim
+global,DS:3379,opponent_enabled,u8,
+global,DS:33B7,cop_state,u8,sim
+global,DS:33B8,cop_active,u8,sim
+global,DS:33CE,fall_scroll,u16,sim
+global,DS:33D4,fall_mode,u8,sim
+global,DS:346A,dat_image,bytes,scenery stage DAT
+global,DS:347E,dat_records,4-byte[128],
+global,DS:368A,dat_scenery_type,s8[128],
+global,DS:370A,dat_scenery_offset,s8[128],
+global,DS:37A6,dat_band_table,8-byte entries,
+global,DS:37F6,dat_wide_left,u8,
+global,DS:37F7,dat_tunnel_style,u8,
+global,DS:37F8,dat_no_mountains,u8,
+global,DS:380D,dat_road_units,u16,
+global,DS:380F,dat_stage_length,u16,
+global,DS:3813,traffic_list_l,8-byte[50],
+global,DS:39A3,traffic_list_r,8-byte[50],
+global,DS:3B51,road_bytes,u8[],
+global,DS:52C8,player_pos_lo,u16,
+global,DS:52CA,player_pos_hi,u16,
+global,DS:52CC,player_lateral,s16,
+global,DS:52D0,opp_pos_lo,u16,
+global,DS:52D2,opp_pos_hi,u16,
+global,DS:52D4,opp_lateral,s16,
+global,DS:52D8,cop_pos_lo,u16,
+global,DS:52DA,cop_pos_hi,u16,
+global,DS:52DC,cop_lateral,s16,
+global,DS:52E0,sign_work,u16[47],"post width, x, then SGN entry copy at 52E4"
+global,DS:5342,distance_left,s16,
+global,DS:5344,mountain_scroll,u16,
+global,DS:5346,cloud_scroll,u16,
+global,DS:5348,view_width,u16,320/80
+global,DS:534A,col_left,u16,
+global,DS:534C,col_right,u16,
+global,DS:534E,col_shoulder,u16,
+global,DS:5350,col_sky,u16,
+global,DS:5352,col_far,u16,
+global,DS:5374,result_dist_player,u16,
+global,DS:5376,result_dist_opp,u16,
+global,DS:5378,finish_letters,u16 quads,"FINISH line segments, -1 terminated"
+global,DS:5420,plane_seg,u16[4],
+global,DS:5428,colour_plane_tables,u8[4x16],
+global,DS:5468,mask_from_bit,u8[16],
+global,DS:5488,pixel_mask,u8[8],
+global,DS:5490,drive_result,s8,
+global,DS:5491,start_flags,u8,
+global,DS:549F,crash_sound_data,data,
+global,DS:5560,tan256,s16[128],tan(deg)*256
+global,DS:942E,time_seconds,u16,
+global,DS:940E,sgn_segment,u16,
+global,DS:8430,fnt_segment,u16,
+global,DS:9410,last_stage,u16,
+global,DS:8424,lives,u16,
+global,DS:8A9A,demo_mode,u16,

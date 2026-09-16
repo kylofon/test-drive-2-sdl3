@@ -9,8 +9,8 @@ Challenge add-ons).
 
 ## Status
 
-* Reverse engineering: executables unpacked and indexed, archive format decoded, subsystem specs in
-  progress (`port/`).
+* Reverse engineering: executables unpacked and indexed, file formats decoded, specs for game flow,
+  scene rendering, simulation and platform written (`port/spec/`).
 * Port: not started.
 
 ## Layout

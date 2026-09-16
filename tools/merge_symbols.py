@@ -1,9 +1,11 @@
 """Merge port/spec/*_symbols.csv into port/symbols.csv and report naming conflicts.
 
-Also writes port/symbols_ghidra.txt ("func 2054 name" / "global 18C5 name" lines) for
-tools/ghidra/ApplySymbols.java.
+Function addresses are SSSS:OOOO (file segment:offset, see port/RE_GUIDE.md); globals are DS:xxxx.
+Also writes port/symbols_ghidra.txt
+lines) for tools/ghidra/ApplySymbols.java: "func 16C9:403B name" (Ghidra address, segment + 1000) or
+"global DS:18C5 name" / "global 16C9:7DDC name".
 """
-import csv, glob, os, re
+import csv, glob, json, os, re
 from collections import defaultdict
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,14 +17,37 @@ for path in sorted(glob.glob(os.path.join(ROOT, 'port', 'spec', '*_symbols.csv')
         for r in csv.DictReader(fh):
             kind = (r.get('kind') or '').strip().lower()
             addr = (r.get('address') or '').strip().upper().replace('0X', '')
-            addr = addr.replace('DS:', '')
             name = re.sub(r'\W', '_', (r.get('name') or '').strip())
-            if kind not in ('func', 'global') or not re.fullmatch(r'[0-9A-F]{1,5}', addr) or not name:
+            m = re.fullmatch(r'([0-9A-F]{4}):([0-9A-F]{4})', addr)
+            if kind == 'func' and m:
+                lin = int(m.group(1), 16) * 16 + int(m.group(2), 16)
+            elif kind == 'global' and re.fullmatch(r'DS:[0-9A-F]{1,4}', addr):
+                lin = int(addr[3:], 16)
+            elif kind == 'global' and re.fullmatch(r'CS:[0-9A-F]{1,4}', addr):
+                # code-segment tables of the assembly library, all in segment 06c9
+                kind, lin = 'cglobal', 0x06C9 * 16 + int(addr[3:], 16)
+            elif kind == 'global' and m:
+                kind, lin = 'cglobal', int(m.group(1), 16) * 16 + int(m.group(2), 16)
+            else:
+                if kind in ('func', 'global') and name:
+                    print('skipped %s: %s %s %s' % (spec, kind, addr, name))
                 continue
-            rows[(kind, int(addr, 16))].append((spec, name, (r.get('type') or '').strip(), (r.get('notes') or '').strip()))
+            if not name:
+                continue
+            rows[(kind, lin)].append((spec, name, (r.get('type') or '').strip(), (r.get('notes') or '').strip()))
 
-RANGES = [('game_flow', 0x0000, 0x1F4E), ('scene_render', 0x1F4E, 0x3B00),
-          ('simulation', 0x3B00, 0x4941), ('platform', 0x4941, 0xC9A0)]  # from port/RE_GUIDE.md
+# Image-offset ranges from port/RE_GUIDE.md (TD2EGA).
+RANGES = [('game_flow', 0x00000, 0x06C90), ('scene_render', 0x06C90, 0x0AC90),
+          ('simulation', 0x0AC90, 0x0C990), ('platform', 0x0C990, 0x13A30),
+          ('platform', 0x13A30, 0x16FC0), ('game_flow', 0x16FC0, 0x17480), ('platform', 0x17480, 0x178F0)]
+
+
+SEGS = [int(x, 16) for x in json.load(open(os.path.join(ROOT, 'port', 'td2ega_functions.json')))['segments']]
+
+
+def fmt_func(lin):
+    seg = max(x for x in SEGS if x * 16 <= lin)
+    return '%04x:%04x' % (seg, lin - seg * 16)
 
 
 def pick(kind, addr, entries):
@@ -45,14 +70,20 @@ with open(os.path.join(ROOT, 'port', 'symbols.csv'), 'w', newline='', encoding='
         best = pick(kind, addr, entries)
         if len(names) > 1:
             conflicts.append((kind, addr, entries))
-        a = ('0x%04X' % addr) if kind == 'func' else ('DS:%04X' % addr)
-        w.writerow([kind, a, best[1], best[2], best[0], ' '.join(n for n in names if n != best[1]),
-                    ' | '.join(e[3] for e in entries if e[3])])
-        gh.write('%s %04X %s\n' % (kind, addr, best[1]))
+        a = ('DS:%04X' % addr) if kind == 'global' else fmt_func(addr)
+        w.writerow(['func' if kind == 'func' else 'global', a, best[1], best[2], best[0],
+                    ' '.join(n for n in names if n != best[1]), ' | '.join(e[3] for e in entries if e[3])])
+        if kind == 'global':
+            gh.write('global DS:%04X %s\n' % (addr, best[1]))
+        else:  # Ghidra loads the image at segment 1000
+            seg = max(x for x in SEGS if x * 16 <= addr)
+            gh.write('%s %04X:%04X %s\n' % ('func' if kind == 'func' else 'global', seg + 0x1000,
+                                            addr - seg * 16, best[1]))
 
 with open(os.path.join(ROOT, 'port', 'symbol_conflicts.txt'), 'w', encoding='utf-8') as fh:
     for kind, addr, entries in conflicts:
-        fh.write('%s %04X: %s\n' % (kind, addr, '; '.join('%s=%s' % (e[0], e[1]) for e in entries)))
+        where = ('DS:%04X' % addr) if kind == 'global' else fmt_func(addr)
+        fh.write('%s %s: %s\n' % (kind, where, '; '.join('%s=%s' % (e[0], e[1]) for e in entries)))
 
 print('%d symbols (%d funcs, %d globals), %d with conflicting names' % (
-    len(rows), sum(1 for k in rows if k[0] == 'func'), sum(1 for k in rows if k[0] == 'global'), len(conflicts)))
+    len(rows), sum(1 for k in rows if k[0] == 'func'), sum(1 for k in rows if k[0] != 'func'), len(conflicts)))

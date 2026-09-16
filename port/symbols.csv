@@ -1,0 +1,1092 @@
+kind,address,name,type,owner,other_names,notes
+global,06c9:7ddc,blit_and_clip_ram_tab,u16[8],platform,,RAM AND clipped
+global,06c9:80ea,blit_and_ram_tab,u16[8],platform,,RAM AND unclipped
+global,06c9:82c8,rect_edge_mask,u8[8],platform,,00 80 C0 E0 F0 F8 FC FE
+global,06c9:857a,line_bit_tab,u8[8],platform,,80 40 20 10 08 04 02 01 (8582)
+global,06c9:8c78,dissolve4_row_order,u8[12],platform,,0B 05 08 02 0A 04 07 01 09 03 06 00
+global,06c9:8c84,dissolve4_masks,u8[4],platform,,11 88 44 22
+global,06c9:8eae,dissolve8_row_order,u8[12],platform,,same as CS:8C78
+global,06c9:8eba,dissolve8_masks,u8[8],platform,,01 08 40 02 10 80 04 20
+global,06c9:9144,bit_index_tab,u8[16],platform,,lowest set bit index
+global,06c9:9154,bit_value_tab,u8[16],platform,,lowest set bit value
+global,06c9:9164,bit_clear_tab,u8[4],platform,,0E 0D 0B 07
+global,06c9:9168,plane_mask_tab,u8[4],platform,,01 02 04 08
+global,06c9:9562,blit_copy_clip_ram_tab,u16[8],platform,,RAM REPLACE clipped shift routines
+global,06c9:9572,blit_clip_ega_tab,u16[8],platform,,EGA clipped shift routines (REPLACE/OR/AND)
+global,06c9:9f9e,blit_copy_ram_tab,u16[8],platform,,RAM REPLACE unclipped
+global,06c9:9fae,blit_ega_tab,u16[8],platform,,EGA unclipped (REPLACE/OR/AND)
+global,06c9:a738,blit_or_clip_ram_tab,u16[8],platform,,RAM OR clipped
+global,06c9:aa32,blit_or_ram_tab,u16[8],platform,,RAM OR unclipped
+global,06c9:ac0c,grab_readmap_tab,u8[16],platform,,lowest set bit index
+global,06c9:af3a,gfx_cur,u16[13],platform,,live copy of the selected target descriptor
+global,06c9:af3c,gfx_cur_planes,u16[4],platform,,plane segments of the live target (A000h = screen)
+global,06c9:af44,gfx_cur_rowtab,u16,platform,,near CS ptr to the row table
+global,06c9:af46,gfx_cur_clip,s16[4],platform,,clip x0 x1 (bytes) y0 y1
+global,06c9:af4e,gfx_cur_stride,u16,platform,,bytes per row
+global,06c9:af50,gfx_cur_pad,u16,platform,,plane block padding
+global,06c9:af52,gfx_cur_width,u16,platform,,width in pixels
+global,06c9:af54,gfx_screen_desc,u16[13],platform,,screen descriptor (A000h x4; rowtab CS:AF6E; 40x200; width 320)
+global,06c9:af6e,gfx_screen_rows,u16[200],platform,,y*40
+global,06c9:b269,gfx_rowpool_top,u16,platform,,next free byte of the descriptor pool (init CS:B26B; limit CS:BA3B)
+global,06c9:b26b,gfx_rowpool,u8[2000],platform,,descriptor + row table pool
+global,06c9:bb28,blit_xor_clip_ram_tab,u16[8],platform,,RAM XOR clipped
+global,06c9:bb38,blit_xor_clip_ega_tab,u16[8],platform,,EGA XOR clipped
+global,06c9:c192,blit_xor_ram_tab,u16[8],platform,,RAM XOR unclipped
+global,06c9:c1a2,blit_xor_ega_tab,u16[8],platform,,EGA XOR unclipped
+global,06c9:c8fe,cursor_glyph_tab,u16[9],platform,,C910 C910 C928 ...
+global,06c9:c910,glyph_cursor_thin,sprite,platform,,1x8 bottom row set
+global,06c9:c928,glyph_cursor_thick,sprite,platform,,1x8 two bottom rows set
+global,06c9:c97c,line_or_bit_tab,u8[8],platform,,80 40 .. 01 (c984)
+func,0000:0000,screen_reveal,int (int mode),game_flow,,page DS:8CA2 to screen; mode 3 = 4-step dissolve; 0/1 interruptible
+func,0000:0090,message_box,"int (char *msg, int timed)",game_flow,,box at rows 80..119; returns 0x1B or 0
+func,0000:01b0,question_box,"int (int, char *msg)",game_flow,,install y/n box; returns raw key
+func,0000:0297,ensure_disk,"int (char *name, int diskType, int mode)",game_flow,,disk prompt + diskid check; sets DS:8644 path; dropped by port
+func,0000:0477,check_diskid,"int (int diskType, int stamp)",game_flow,,diskid.dat type/serial check; dropped
+func,0000:05c0,read_diskid,int (int drive),game_flow,,disk type in drive or -1; dropped
+func,0000:0651,cars_select_by_name,void (void),game_flow,,player/opponent car index from codes
+func,0000:0730,scenery_select_by_name,void (void),game_flow,,scenery index from code
+func,0000:07b3,main,"void (int argc, char **argv)",game_flow,,startup; intro/menu loop; exit prompt
+func,00c0:0004,title_screen,int (void),game_flow,,line-art morph then TESTDRV2 tdri/duel
+func,00c0:027a,accolade_screen,int (void),game_flow,,ACCOLADE acc_/pres/copy + bull slide
+func,00c0:039c,intro_sequence,int (void),game_flow,,intro screens; 0 = timeout; 0x1B = Esc
+func,010c:000e,dsi_logo_screen,int (void),game_flow,,logo morph to DSI lines + DSITITLE
+func,010c:0285,credits,int (void),game_flow,,credits text 5 s
+func,0143:000a,showroom_intro,int (int),game_flow,,two showroom cars in the intro
+func,0143:019e,showroom_tick,void (void),game_flow,,timer routine: showroom car speed/distance/window frame
+func,0143:01e1,showroom_drive,"int (char *path, int x, int y, int anim, int reveal)",game_flow,,.SS window animation and drive-off
+func,019e:0004,menu_random_key,int (void),game_flow,,attract-mode random key
+func,019e:009b,car_slide,"far (int car, int from, int to, far old)",game_flow,,vertical slide of the car image (88 rows)
+func,019e:027d,car_select,int (int car),game_flow,,car selection screen
+func,019e:0527,scenery_select,void (void),game_flow,,scenery selection screen
+func,019e:06c5,main_menu,int (void),game_flow,,GAMEOPT menu and dispatch; 1 = exit program
+func,0267:0004,plural_s,char *(int n),game_flow,,'s' unless n == 1
+func,0267:0017,results_line,"void (char *s, int x)",game_flow,,"draw at (x, DS:83D2) and advance 8"
+func,0267:0039,stage_results,int (int kind),game_flow,,"kind 0 normal / 1 last stage / 99 game over; gas station, scoring, records, duel/section pages, police ending"
+func,0267:118b,results_overall,void (void),game_flow,,Overall Performance lines
+func,0267:1224,results_section_page,void (void),game_flow,,section header + player stage lines
+func,0267:139b,difficulty_screen,int (void),game_flow,,GAMEDIFF 12-step scale
+func,0267:15e4,run_game,int (int mode),game_flow,,stage loop around 06c9:1b2c
+func,0432:0006,name_to_field,"void (char *dst, char *src)",game_flow,,trim + spaces to underscores
+func,0432:0061,field_to_name,void (char *s),game_flow,,underscores to spaces; pad to 18
+func,0432:00a9,cars_load,"int (int diskType, int flag)",game_flow,,append cars.dat records
+func,0432:01b2,scenes_load,"int (int diskType, int flag)",game_flow,,append scenes.dat records
+func,0432:02bf,select_load,int (int diskType),game_flow,,read select.dat (defaults F40 P959 TDS2)
+func,0432:0376,select_save,void (int diskType),game_flow,,write select.dat
+func,0432:040f,install_draw_drive,"void (int type, int y, int fg, int bg)",game_flow,,install menu; dropped
+func,0432:0441,install_edit_drive,"void (int type, int y)",game_flow,,install menu; dropped
+func,0432:04f1,copy_queued_files,int (void),game_flow,,install: copy up to 20 queued files; dropped
+func,0432:0847,playdisk_create_file,int (char *name),game_flow,,install; dropped
+func,0432:088f,playdisk_delete_file,void (char *name),game_flow,,install; dropped
+func,0432:08f5,install_list_cars,void (...),game_flow,,install list drawing; guess; dropped
+func,0432:0a2e,install_list_scenery,void (...),game_flow,,install list drawing; guess; dropped
+func,0432:0b66,install_list_cursor,void (...),game_flow,,install list drawing; guess; dropped
+func,0432:0c0e,make_play_disk,int (void),game_flow,,install; dropped
+func,0432:0d35,copy_car_files,int (int idx),game_flow,,install; dropped
+func,0432:0f71,copy_scenery_files,int (int idx),game_flow,,install; dropped
+func,0432:11ae,delete_car_files,int (int idx),game_flow,,install; dropped
+func,0432:1341,delete_scenery_files,int (int idx),game_flow,,install; dropped
+func,0432:14db,copy_cars_menu,int (void),game_flow,,install; dropped
+func,0432:19d8,copy_scenery_menu,int (void),game_flow,,install; dropped
+func,0432:1d25,forget_play_disk,void (void),game_flow,,dropped
+func,0432:1d44,catalog_reload,int (void),game_flow,,reload catalogue incl. extra CAR/SCENERY disks
+func,0432:1ea4,install_menu,int (void),game_flow,,INSTALL MENU; jump table 0432:211a; dropped
+func,0645:0000,hisc_load,int (void),game_flow,,read <scn>hisc.dat + checksum
+func,0645:0186,hisc_save,void (void),game_flow,,write 0x154 bytes with checksum
+func,0645:0271,name_entry_screen,int (void),game_flow,,qualified screen + text input
+func,0645:0389,hisc_insert,int (void),game_flow,,insert total score into top 6
+func,0645:0470,hisc_show,int (long timeout),game_flow,,top scores table
+func,0645:06a8,hisc_check,int (void),game_flow,,insert if qualifying then show table 15 s
+func,06b3:0008,steer_update,far void(void),simulation,,steering integration and self-centring (C)
+func,06c9:0002,main_view_load,far void(void),scene_render,,"create main buffer 320x92 at (0,19); handles DS:0704, DS:080E"
+func,06c9:0083,main_view_free,far void(void),scene_render,,free main buffer
+func,06c9:0094,present_main_view,far void(void),scene_render,,"select screen, copy_own(main sprite)"
+func,06c9:00aa,project_front,far void(void),scene_render,,front projection pipeline
+func,06c9:00c9,dbg_present_and_wait,far void(void),scene_render,,unreferenced debug helper
+func,06c9:00e7,draw_front,far void(void),scene_render,,front view into main buffer; fall scroll
+func,06c9:0201,snapshot_front,far void(void),scene_render,,per-frame front state and traffic draw list
+func,06c9:0338,project_front_rows,near void(void),scene_render,,60-row projection
+func,06c9:05f8,build_spans_front,near void(void),scene_render,,per-scanline edge arrays
+func,06c9:06c3,interp_span,"near (a,b,dst) CX=n DX=dy ret 6",scene_render,,Bresenham span interpolation; self-modifying step
+func,06c9:0746,fix_cut_lines_front,near void(void),scene_render,,cliff/drop-off/tunnel cut fix-ups
+func,06c9:088e,clamp_spans,near AX=first BP=end,scene_render,,"clamp 5 span arrays to [0,DS:5348]"
+func,06c9:08cb,clamp_edge_front,near AX=x SI=row*2 -> AX,scene_render,,edge clamp against cut lines
+func,06c9:0919,draw_sky_front,near void(void),scene_render,,"sky, tunnel mouth rectangles, mountains, clouds"
+func,06c9:0b0d,draw_ground_front,near void(void),scene_render,,scanline ground fill
+func,06c9:0bb8,draw_tunnel_walls_front,near void(void),scene_render,,tunnel wall lines
+func,06c9:0c17,span_fill_to,near AX=end BX=colour DI=row,scene_render,,4-plane span fill; jumps to [DS:0702] when the row is full
+func,06c9:0d01,hline,near DX=x0 AX=x1 DI=y BX=colour,scene_render,,draw_line if x0<x1
+func,06c9:0d13,draw_front_objects,near void(void),scene_render,,"far-to-near markings, cliffs, tunnels, road objects, scenery, text signs, poles, cars"
+func,06c9:1ad6,tunnel_rib_front,near SI=row*2,scene_render,,white tunnel frame lines
+func,06c9:1b2c,run_stage,far int(void),scene_render,,stage runner and frame loop; returns (s8)DS:5490
+func,06c9:1c8f,stage_load,far void(void),scene_render,,"stage variables, handle tables, cockpit, sim init"
+func,06c9:1e31,life_reset,far void(void),scene_render,,per-life reset
+func,06c9:1e59,prepare_traffic_lists,far void(void),scene_render,,DAT traffic lists to road pointers; density thinning
+func,06c9:1ee2,mirror_load,far void(void),scene_render,,"create mirror buffer 80x17 at (240,8); handles DS:27BE, DS:28C8"
+func,06c9:1f60,mirror_free,far void(void),scene_render,,free mirror buffer
+func,06c9:1f71,project_mirror,far void(void),scene_render,,mirror projection pipeline
+func,06c9:1f90,dbg_wait_key,far void(void),scene_render,,unreferenced
+func,06c9:1f99,draw_mirror,far void(void),scene_render,,mirror view; composite into main buffer
+func,06c9:2089,snapshot_mirror,far void(void),scene_render,,per-frame mirror state
+func,06c9:21c3,project_mirror_rows,near void(void),scene_render,,25-row projection behind the car
+func,06c9:2477,build_spans_mirror,near void(void),scene_render,,mirror spans
+func,06c9:2542,fix_cut_lines_mirror,near void(void),scene_render,,mirror cut fix-ups
+func,06c9:268a,clamp_edge_mirror,near AX=x SI=row*2 -> AX,scene_render,,mirror edge clamp
+func,06c9:26d8,draw_sky_mirror,near void(void),scene_render,,mirror sky and mountains
+func,06c9:284f,draw_ground_mirror,near void(void),scene_render,,mirror ground fill
+func,06c9:28f9,draw_tunnel_walls_mirror,near void(void),scene_render,,mirror tunnel walls
+func,06c9:2958,draw_mirror_objects,near void(void),scene_render,,"mirror objects, then composite"
+func,06c9:34dc,tunnel_rib_mirror,near SI=row*2,scene_render,,mirror tunnel frame lines
+func,06c9:3532,crash_sequence,far void(void),scene_render,,"hood damage, 7 crack steps, palette flash"
+func,06c9:362f,message_wait_tail,far tail,scene_render,,delay 30 then wait_after_message
+func,06c9:3643,engine_smoke_sequence,far void(void),scene_render,,10-step smoke animation
+func,06c9:36e0,msg_missed_gas,far void(void),scene_render,,You missed the gas station
+func,06c9:3713,msg_too_far_left,far void(void),scene_render,,Too far left to reach pump.
+func,06c9:371f,msg_engine_dead,far void(void),scene_render,,Engine has lost all power...
+func,06c9:372b,msg_suspension_dead,far void(void),scene_render,,Suspension completely gone...
+func,06c9:3737,msg_steering_dead,far void(void),scene_render,,Steering completely shot...
+func,06c9:3743,msg_too_much_damage,far void(void),scene_render,,Car took too much damage...
+func,06c9:374f,msg_fill_er_up,far void(void),scene_render,,Fill 'er up... unless last stage
+func,06c9:375f,msg_lives_left,far void(void),scene_render,,Lives left / last life
+func,06c9:3788,message_box,near void(void),scene_render,,black box with frame
+func,06c9:37d0,cockpit_load,far void(void),scene_render,,"dash handles, inst/gbox buffers, dash+roof, progress line"
+func,06c9:38d4,cockpit_free,far void(void),scene_render,,free inst and gbox buffers
+func,06c9:38f2,cockpit_reset,far void(void),scene_render,,per-life cockpit state
+func,06c9:391f,draw_hud,far void(void),scene_render,,"mirror mask, ticket, radar, progress dots, distance/time"
+func,06c9:3a5f,draw_radar_detector,near void(void),scene_render,,radar sprite
+func,06c9:3a91,draw_progress_dots,near void(void),scene_render,,3 dots on screen row 0
+func,06c9:3ab8,progress_dot,near SI=pos BX=slot*2 DX=colour,scene_render,,move one dot
+func,06c9:3af9,draw_ticket,near void(void),scene_render,,ticket sprite and amount
+func,06c9:3b95,draw_gear_gate,far void(void),scene_render,,gear gate and knob
+func,06c9:3c3a,draw_steering,far void(void),scene_render,,wheel pose and marker
+func,06c9:3cef,draw_instruments,far void(void),scene_render,,needles/bars/digits
+func,06c9:3ea4,draw_number3,near AX=value SI=slot*2,scene_render,,3-digit number
+func,06c9:3ed7,draw_inst_digit,near AL=digit SI=slot*2,scene_render,,one instrument digit
+func,06c9:3efc,select_main_view,far void(void),scene_render,,select_target(DS:09B2)
+func,06c9:3f0d,wait_after_message,far void(void),scene_render,,"drain keys, delay, wait key or 1800 ticks"
+func,06c9:3f40,sim_stage_init,far void(void),scene_render,sim_stage_start,see simulation spec | stage reset; look-ahead flag checksum; end fix-up; registers 06c9:6269 and 06c9:403b in the timer list
+func,06c9:3ff9,sim_life_reset,far void(void),scene_render,sim_restart_reset,see simulation spec | per-life reset; calls 5427
+func,06c9:403b,sim_timer_routine,far void(void) sets DS,simulation,,100 Hz timer-list routine; 10 Hz sim tick; 1 Hz clock
+func,06c9:412c,sound_tick,near,simulation,drive_sound_update,every tick: rpm slew; DS:5F2E slots 0x55/0x56/0x58 (simulation spec) | rpm needle slew; engine/rumble/effect tone divisors DS:5FD8-5FDE
+func,06c9:420a,read_input,near,simulation,,controls; idle quit; hotkeys
+func,06c9:4281,decode_controls,near,simulation,,demo autopilot; automatic transmission; steer/throttle; gear selection
+func,06c9:43c3,shift_knob_anim,near,simulation,,knob animation 6 px/tick; shift completion
+func,06c9:4441,clutch_check,"near (CX old rpm, DX new rpm)",simulation,,downshift lurch -5 mph; grind tone
+func,06c9:448a,curve_sum,near,simulation,,sum of last 8 curve bytes -> DS:30E4; speed -> DS:30E6
+func,06c9:44a6,hotkeys,near (AX key),simulation,,Esc/o/O/d/D via DS:33D6 and DS:33DC
+func,06c9:44bf,key_esc,near,simulation,,run_state = 0xFF
+func,06c9:44c5,key_gate_mode,near,simulation,,gate_mode ^= 1 unless automatic
+func,06c9:44d2,key_dash_toggle,near,simulation,,DS:2F58 ^= 1
+func,06c9:44d8,brake_1600,near,simulation,,speed -= 1600
+func,06c9:44de,brake_800,near,simulation,,speed -= 800 (skid)
+func,06c9:44e4,brake_400,near,simulation,,speed -= 400 (broken gear)
+func,06c9:44ea,engine,near,simulation,,throttle; brake; clutch; torque
+func,06c9:4588,free_rev,near,simulation,,rpm -200 down to 800; or +600 in neutral with throttle
+func,06c9:45bf,drag_apply,near (DX force),simulation,,speed += force - drag
+func,06c9:45fc,brake,near (DX amount),simulation,,speed -= DX floor 0; update_rpm
+func,06c9:4612,update_rpm,"near -> CX old, DX new",simulation,,rpm = ratio*speed>>16 min 800; nothing in neutral
+func,06c9:4639,overrev_check,near,simulation,,30 ticks at redline or above max -> run_state 3
+func,06c9:4674,motion,near,simulation,,"pull-over; sub-unit step; unit loop (spawn, fuel, grip, yaw, collisions, objects)"
+func,06c9:4929,obj_station_zone,near,simulation,,object 0x0A
+func,06c9:4947,obj_past_station,near,simulation,,object 0x0C
+func,06c9:494d,obj_parked_cop,near (BP pos),simulation,,object 0x15
+func,06c9:495d,obj_roadblock,near (BP pos),simulation,,object 0x16
+func,06c9:499a,obj_place_roadside,near (BX code*2),simulation,,objects 0x1C-0x2F; writes through SS
+func,06c9:49c9,obj_toggle_37f7,near,simulation,,object 0x17
+func,06c9:49cf,obj_toggle_median,near,simulation,,object 0x18
+func,06c9:49d5,obj_toggle_37f8,near,simulation,,object 0x19
+func,06c9:49db,obj_density_up,near,simulation,,object 0x1A
+func,06c9:49e1,obj_density_down,near,simulation,,object 0x1B
+func,06c9:49e7,obj_sign_posts,near,simulation,,objects 0x01-0x09
+func,06c9:4a18,obj_none,near,simulation,,objects 0x00 and 0x0B
+func,06c9:4a19,obj_lane_obstacle,near (BX code*2),simulation,,objects 0x0D-0x14
+func,06c9:4a2e,hit_object,near,simulation,,speed -1600; bump sound; random damage
+func,06c9:4afa,car_edges,near,simulation,,car edges; station and out-of-gas stop checks
+func,06c9:4b5d,median_posts,near,simulation,,posts every 16 units
+func,06c9:4b9a,road_edges,near,simulation,,walls; drop-offs; shoulder; right-side zones
+func,06c9:4c85,roadside_hit,near,simulation,,scenery and billboard collision
+func,06c9:4d26,overlap,"near (AX centre, BX half) -> ZF",simulation,,lateral overlap with the car
+func,06c9:4d3f,traffic,near,simulation,,moves traffic lists; meet/push checks
+func,06c9:4f92,meet_check,"near (SI,BP,CX,DX:AX,DI) -> ZF hit",simulation,,reaching the next car of a list
+func,06c9:5022,push_behind,"near (SI,DX:AX,DI)",simulation,,keeps same-direction cars behind a driver
+func,06c9:50a1,opponent_ai,near,simulation,,computer opponent
+func,06c9:5299,ai_road_scan,"near (BX pos, DI factor) -> BL",simulation,,lane availability; curve speed limit
+func,06c9:52fd,ai_gap,"near (DX,CX,AX,BX) -> AX",simulation,,time-to-reach score; 100 = free
+func,06c9:5334,ai_lane_min,"near (AX gap, BX x)",simulation,,minimum gap per lane
+func,06c9:535b,ai_pick_lane,"near (AX x) -> CX target, DX gap",simulation,,lane choice
+func,06c9:53a6,police,near,simulation,,radar trap and chase dispatch
+func,06c9:5427,police_reset,near,simulation,,removes the police car
+func,06c9:5446,police_start,near,simulation,,police car appears 26 units behind the player
+func,06c9:54f4,police_chase_opp,label,simulation,,states DS:33B6 via DS:3456
+func,06c9:557a,police_chase_player,label,simulation,,states DS:33B7 via DS:3446
+func,06c9:56ed,police_drive,near,simulation,,police movement; may pop the caller return address
+func,06c9:5880,demo_steer,near,simulation,,demo autopilot lane and brake
+func,06c9:595f,pass_collisions,near,simulation,,player/opponent/police crossings
+func,06c9:5a25,pass_check,"near (SI,DI,BX,DX) -> CX, CF",simulation,,sign change with lateral overlap
+func,06c9:5a6f,fall_anim,near,simulation,,falling and sinking
+func,06c9:5ada,traffic_resync,far void(void),simulation,,clears traffic around the player; finds list indices
+func,06c9:5b5a,resync_list,near,simulation,,pushes cars out of the window
+func,06c9:5c30,nearest_ahead,"near (SI,CX,DX:AX) -> SI",simulation,,nearest car ahead
+func,06c9:5c5a,at_finish,"near (BX,DI,SI) -> AL",simulation,,braking distance to the finish
+func,06c9:5c98,select_screen,far void(void),scene_render,,platform: select_target(CS:AF54)
+func,06c9:5ca6,create_buffer_like,"far (far sprite) -> DX:AX desc, CX:BX sprite",scene_render,,platform
+func,06c9:5d00,gfx_video_hook,void(void),platform,,empty retf in EGA/Tandy; CGA build restores 3D8h/3D9h
+func,06c9:5d01,far_memcpy,"void(u16 soff,u16 sseg,u16 doff,u16 dseg,u16 n)",platform,,rep movsb between far buffers
+func,06c9:5d1e,wait_key_paused,void(void),platform,,pause flag around getkey_wait; no direct callers
+func,06c9:5d2e,make_tick_id,char*(void),platform,,int 1Ah tick count -> 4 bytes at DS:52C2
+func,06c9:5d4e,dos_num_drives,int(void),platform,,AH=19h then AH=0Eh; returns logical drive count
+func,06c9:5d5b,set_file_hidden,int(char*name),platform,,AX=4301h CX=2; 1=error 0=ok
+func,06c9:5d74,bios_floppy_count,int(void),platform,,int 11h floppy count; minimum 2
+func,06c9:5d83,bios_ticks,u16(void),platform,,word 0040:006C
+func,06c9:5d8d,bios_ticks_since,u16(u16 t0),platform,,0040:006C - t0
+func,06c9:5d9e,gfx_set_clip,"void(far Desc*,s16 x0,s16 x1,s16 y0,s16 y1)",platform,,descriptor clip + live copy if current
+func,06c9:5dfb,gfx_set_clip_current,"void(s16 x0,s16 x1,s16 y0,s16 y1)",platform,,live copy CS:AF46..AF4C only
+func,06c9:5e1c,file_paras,u16(char*name),platform,,file size in paragraphs rounded up; fatal %s FILE ERROR
+func,06c9:5e8a,unpacked_paras,u16(char*name),platform,,u24 at file+1 in paragraphs rounded up
+func,06c9:5ef4,find_first,char*(char*spec),platform,,AH=4Eh attr 6 DTA DS:5DEE; returns DS:5D88 or 0
+func,06c9:5f4e,find_next,char*(void),platform,,AH=4Fh; returns DS:5D88 or 0
+func,06c9:5f64,herc_init,void(void),platform,,Hercules graphics page 1; DS:5E6E=1
+func,06c9:5fbc,video_shutdown,void(void),platform,,EGA: gfx_shutdown; Hercules: text mode 7
+func,06c9:601c,timer_install_drive,void far(void),platform,,div 0x2E9C; chain reload 5; BIOS chain countdown 100
+func,06c9:603c,timer_install_menu,void far(void),platform,,div 0x2E9C; chain forever; no callers
+func,06c9:6059,timer_install_div,void far(int div),platform,,reload 0x10000/div; chain forever; called with 0x2E9C
+func,06c9:607a,timer_install_div_countdown,void far(int div),platform,,reload 0x10000/div; countdown 100; no callers
+func,06c9:6099,timer_install_common,tail(DX=div),platform,,clear routine list; speaker off; hook INT 8; PIT ch0
+func,06c9:610a,timer_restore,void far(void),platform,,unhook INT 8; PIT ch0 65536; speaker off
+func,06c9:614c,timer_add_routine,void far(farfn fn),platform,,5-slot list DS:5F12; fatal when full
+func,06c9:6180,timer_remove_routine,void far(farfn fn),platform,,remove and shift list
+func,06c9:61bf,timer_isr,interrupt,platform,,99.9985 Hz tick; counters; BIOS chain; routine list
+func,06c9:6230,timer_bios_chain,near,platform,,countdown then call old INT 8
+func,06c9:6269,sfx_tick,void far(void),platform,,timer routine: effect/engine byte-code stream player (driving)
+func,06c9:642e,gfx_shutdown,void(void),platform,,clear screen; INT 10h mode 3; border 0
+func,06c9:645a,hotkey_joystick_on,void far(void),platform,,Ctrl-J: DS:6CFC=1; paused joystick calibration
+func,06c9:646f,hotkey_keyboard_on,void far(void),platform,,Ctrl-K: DS:6CFC=0; KEYBOARD ON
+func,06c9:6488,hotkey_sound_toggle,void far(void),platform,,Ctrl-S: toggle DS:5EFB bit0
+func,06c9:64c7,hotkey_music_toggle,void far(void),platform,,Ctrl-Q: toggle DS:5EFB bit1
+func,06c9:6508,hotkey_pause,void far(void),platform,,Ctrl-P: paused 16fc:0358
+func,06c9:6518,hotkey_exit,void far(void),platform,,Ctrl-X: paused 16fc:007c
+func,06c9:6528,kbd_dispatch,int far(int key),platform,,handler tables DS:6048/DS:6148; 0 if handled
+func,06c9:6585,hotkey_set,void far(int key; u16 off),platform,,DS:6048[key]=handler (seg 06c9)
+func,06c9:65c5,getkey_menu,int far(void),platform,,INT16 key via kbd_dispatch else joystick code
+func,06c9:6601,getkey_drive,u16(void),platform,,typed key for sim; peek only if SS!=DS
+func,06c9:6620,input_drive_bits,u16(void),platform,,held keys -> joystick bits else joy_read
+func,06c9:6686,joy_read,u16(void),platform,,port 201h + adaptive calibration (TD1 0xA12F)
+func,06c9:680a,joy_calib_reset,void(void),platform,,joy on; xmin=ymin=0x50 xmax=ymax=0
+func,06c9:6828,joy_dir_index,u16(u16 bits),platform,,DS:629E[bits&15] -> 0..8
+func,06c9:6839,joy_analog_x,s16(void),platform,,dead; no function header
+func,06c9:684c,joy_analog_y,s16(void),platform,,dead; no function header
+func,06c9:6860,kbd_install,void(void),platform,,hook INT 9 and INT 16h
+func,06c9:68c4,kbd_restore,void(void),platform,,unhook INT 9 and INT 16h
+func,06c9:6907,kbd_int9_isr,interrupt,platform,,key-down table + translated one-key buffer
+func,06c9:69b7,kbd_int16_isr,interrupt,platform,,AH=0 read/clear (non-blocking) AH=1 peek AH=2 shift
+func,06c9:69f2,key_is_down,u8(u16 scan),platform,,dead
+func,06c9:69fe,getkey,int far(void),platform,,call far [DS:64DC]
+func,06c9:6a03,getkey_raw,u16(void),platform,,keyboard only; no hotkeys
+func,06c9:6a17,kbd_set_getkey_fn,void far(farfn),platform,,DS:64DC
+func,06c9:6a28,kbd_get_getkey_fn,farfn far(void),platform,,DS:64DC
+func,06c9:6a30,getkey_wait,int far(void),platform,,blocking getkey
+func,06c9:6a3b,kbd_flush,int far(void),platform,,drain INT16 buffer; returns 0
+func,06c9:6a4a,getkey_until_deadline,int far(void),platform,,key or 0 when ticks >= DS:6818
+func,06c9:6a6a,getkey_timeout,int far(long n),platform,,key or 0 after n ticks
+func,06c9:6aa2,load_file_at,"farptr(char*name,u16 off,u16 seg)",platform,,reads whole file in 0x4000 chunks; fatal %s FILE ERROR
+func,06c9:6b02,rle_decode,"farptr(u16 in_off,u16 in_seg,u16 out_off,u16 out_seg,u16 total_paras)",platform,,RLE pass (type 1); returns out_seg:0000
+func,06c9:6b97,rle_run_pass,near (frame of 6b02),platform,,RLE run pass; stops after u32 count input bytes
+func,06c9:6c6e,rle_seq_pass,near (frame of 6b02),platform,,RLE sequence pass; returns output length
+func,06c9:6d18,load_raw,u8 far * far(char *name),platform,,raw file into cached block seg:0 (resource spec)
+func,06c9:6d50,unpack_file,farptr(char*name),platform,,cache check reserve load and decode 1..k passes; INVALID PACK TYPE
+func,06c9:6e4e,res_find_opt,"farptr(farptr arc,char*name4)",platform,,locateshape variant returning 0:0 if missing
+func,06c9:6e59,res_find,"farptr(farptr arc,char*name4)",platform,,locateshape; normalized far ptr; fatal if missing
+func,06c9:6f1e,mem_init,void(u16 top_seg),platform,,DOS heap block (first call) and clear all memory records
+func,06c9:6f86,mem_init_default,void(void),platform,,mem_init(0xA000)
+func,06c9:6f93,mem_init_reserve,void(u16 paras),platform,,mem_init(0xA000) then lower heap top; no callers
+func,06c9:6fb2,mem_gap,u16(void),platform,,cache start minus low-stack end; no callers
+func,06c9:6fc4,mem_low_used,u16(void),platform,,low-stack end minus heap base; no callers
+func,06c9:6fd6,mem_free_total,u16(void),platform,,heap top minus low-stack end
+func,06c9:6fe8,far_copy_down,"void(u16 src_seg,u16 dst_seg,u16 paras)",platform,,forward paragraph copy
+func,06c9:7030,far_move_up,"void(u16 src_seg,u16 dst_seg,u16 paras)",platform,,backward paragraph copy (memmove dst>src)
+func,06c9:7083,path_basename,char*(char*path),platform,,pointer after last colon or backslash
+func,06c9:70a3,mem_reserve,"farptr(char*name,u16 paras)",platform,,reservememory: push block on low stack evicting cache
+func,06c9:7147,cache_compact,void(void),platform,,pack kept cache blocks against heap top
+func,06c9:71b4,mem_reclaim_cached,farptr(char*name),platform,,move cached block back to low stack or return 0:0
+func,06c9:7273,mem_is_cached,int(char*name),platform,,1 if name is in the cache region
+func,06c9:72c6,mem_release_cache_old,farptr(farptr blk),platform,,free block and cache it at the bottom of the cache
+func,06c9:736b,mem_release_cache,farptr(farptr blk),platform,,free block and cache it at the top of the cache
+func,06c9:7490,mem_free,void(farptr blk),platform,,free low-stack block; BLOCK NOT FOUND
+func,06c9:74d4,mem_size,u16(farptr blk),platform,,block size in paragraphs; no callers
+func,06c9:7501,mem_slide_down,farptr(farptr blk),platform,,move block down onto previous in-use block; no callers
+func,06c9:758a,music_play,void far(u8 far *songs; int n),platform,,start SONGS.BIN song n if DS:5EFB==3
+func,06c9:75c8,music_set_voices,void far(u8 far *voices),platform,,DS:65F7 seg / DS:65F9 off
+func,06c9:75d9,music_set_6625,void far(u16 w6627; u16 w6625),platform,,write-only globals; no callers
+func,06c9:75ea,music_tick,void far(void),platform,,timer routine: SONGS.BIN pattern player (menus)
+func,06c9:780e,rand8,u8(void),platform,,table PRNG DS:66E6/DS:66E8
+func,06c9:782c,gfx_free_buffer,void(far Desc*),platform,,row pool CS:B269 -= (h+13)*2; free block via 06c9:7490
+func,06c9:7866,write_file_or_die,"int(char*name,u16 off,u16 seg,u32 len)",platform,,create+write 0x4000 chunks; fatal on error
+func,06c9:7874,write_file,"int(char*name,u16 off,u16 seg,u32 len)",platform,,same; errors ignored; returns 0
+func,06c9:78f8,gfx_targets_save,void(u16*),platform,,26 words CS:AF3A -> DS buffer
+func,06c9:7918,gfx_targets_restore,void(u16*),platform,,DS buffer -> CS:AF3A
+func,06c9:7934,sound_off,void far(void),platform,,no callers
+func,06c9:7940,sound_on,void far(void),platform,,no callers
+func,06c9:7946,sfx_set_loop,void far(u8 far *s),platform,,loop stream; starts now if no one-shot
+func,06c9:7971,sfx_clear_loop,void far(void),platform,,DS:5EFD=0
+func,06c9:7977,sfx_play,void far(u8 far *s),platform,,one-shot stream now
+func,06c9:798f,sfx_is_playing,int far(void),platform,,DS:5EFC; no callers
+func,06c9:7995,sfx_stop,void far(void),platform,,DS:5EEE=0; no callers
+func,06c9:799c,sfx_play_if_enabled,void far(u8 far *s),platform,,if DS:5EFB==3; no callers
+func,06c9:79bb,music_on,void far(void),platform,,no callers
+func,06c9:79c1,music_off,void far(void),platform,,no callers
+func,06c9:79c8,ticks_get,long far(void),platform,,DS:5E8C
+func,06c9:79d2,ticks_since,long far(long t),platform,,no callers
+func,06c9:79ea,ticks_lap,long far(void),platform,,DS:681C; no callers
+func,06c9:7a07,ticks_reset,void far(void),platform,,no callers
+func,06c9:7a10,deadline_set,void far(long n),platform,,DS:6818 = now + n
+func,06c9:7a27,deadline_wait,void far(void),platform,,busy wait
+func,06c9:7a3b,deadline_passed,int far(void),platform,,1 if now >= DS:6818
+func,06c9:7a55,delay_ticks,void far(long n),platform,,busy wait n ticks
+func,06c9:7a82,gfx_set_text_colours,void(u16 fg; u16 bg),platform,,DS:6820/6822
+func,06c9:7a93,gfx_set_text_cursor,void(u16 x; u16 y),platform,,dead
+func,06c9:7aa4,text_state_save,void(u16 *buf),platform,,11 words DS:6820
+func,06c9:7abd,text_state_restore,void(u16 *buf),platform,,11 words DS:6820
+func,06c9:7c16,huff_decode,"u32(u16 in_off,u16 in_seg,u16 out_off,u16 out_seg,u16 total_paras)",platform,,Huffman pass (type 2); returns header size; n bit7 = delta mode
+func,06c9:7d5e,gfx_select_target,void(far Desc*),platform,select_target,13 words -> CS:AF3A | platform: copy 13-word descriptor to CS:AF3A
+func,06c9:7d7c,blit_and_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped AND at x-hot_x | platform
+func,06c9:7d9c,blit_and_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped AND at x
+func,06c9:7dbc,blit_and_clip_own,"void(u16 off,u16 seg)",platform,,clipped AND at header x | platform
+func,06c9:808a,blit_and_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,"unclipped AND | platform, unclipped"
+func,06c9:80aa,blit_and_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,unclipped AND
+func,06c9:80ca,blit_and_own,"void(u16 off,u16 seg)",platform,,"unclipped AND | platform, unclipped"
+func,06c9:82d0,rect_clear_plane,asm,platform,,RAM constant-plane clear (ES:DI DX SI CX BX AL)
+func,06c9:8336,rect_set_plane,asm,platform,,RAM constant-plane set
+func,06c9:839c,rect_xor_plane,asm,platform,,RAM constant-plane invert
+func,06c9:840a,gfx_clear_screen,void(u8 colour),platform,,A000h all planes
+func,06c9:843e,gfx_clear_clip,void(u8 colour),platform,fill_clip,fill live clip rectangle | platform
+func,06c9:8582,gfx_draw_line,"void(s16 x0,s16 y0,s16 x1,s16 y1,u8 colour)",platform,,clipped line; pixel = colour
+func,06c9:89a2,gfx_fill_rect_clip,"void(s16 x,s16 y,s16 w,s16 h,u8 colour)",platform,fill_rect_clip,clip then fill_rect body | platform; falls into 8a0c
+func,06c9:8a0c,gfx_fill_rect,"void(s16 x,s16 y,s16 w,s16 h,u8 colour)",platform,,unclipped rectangle; colour low nibble
+func,06c9:8cd8,gfx_dissolve4,"void(u16 off,u16 seg,u8 phase)",platform,,screen dissolve masks 11 88 44 22
+func,06c9:8f12,gfx_dissolve8,"void(u16 off,u16 seg,u8 phase)",platform,,screen dissolve (TD1 0x768B)
+func,06c9:90e8,gfx_init_ega,void(void),platform,,mode 0Dh + palette DS:6848
+func,06c9:916c,blit_copy_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped REPLACE | platform
+func,06c9:91a4,blit_copy_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped REPLACE | platform
+func,06c9:91d6,blit_copy_clip_own,"void(u16 off,u16 seg)",platform,,clipped REPLACE at header x/y
+func,06c9:9c58,blit_copy_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,unclipped REPLACE
+func,06c9:9c90,blit_copy_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,"unclipped REPLACE | platform, unclipped"
+func,06c9:9cc2,blit_copy_own,"void(u16 off,u16 seg)",platform,,"unclipped REPLACE at header x/y | platform, unclipped"
+func,06c9:a530,gfx_draw_text,void(char *s; u16 x; u16 y),platform,,TD1 0x4BD0
+func,06c9:a547,gfx_draw_text_at_cursor,void(char *s),platform,,TD1 0x4BE7; no callers
+func,06c9:a6d8,blit_or_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped OR | platform
+func,06c9:a6f8,blit_or_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped OR | platform
+func,06c9:a718,blit_or_clip_own,"void(u16 off,u16 seg)",platform,,clipped OR | platform
+func,06c9:a9d2,blit_or_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,"unclipped OR | platform, unclipped"
+func,06c9:a9f2,blit_or_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,"unclipped OR | platform, unclipped"
+func,06c9:aa12,blit_or_own,"void(u16 off,u16 seg)",platform,,"unclipped OR | platform, unclipped"
+func,06c9:abfa,gfx_set_palette,void(u16 ds_table),platform,,INT 10h AX=1002h
+func,06c9:ac1c,grab_into_sprite_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,screen -> sprite planes; no callers
+func,06c9:ac40,grab_into_sprite_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,screen -> sprite planes; stores x/y in header
+func,06c9:ac64,grab_into_sprite_own,"void(u16 off,u16 seg)",platform,,screen -> sprite planes at x&~7; no callers
+func,06c9:ad22,rect_clear_plane_ega,asm,platform,,EGA constant-plane clear
+func,06c9:ad8b,rect_set_plane_ega,asm,platform,,EGA constant-plane set
+func,06c9:adf4,rect_xor_plane_ega,asm,platform,,EGA constant-plane invert
+func,06c9:ae62,gfx_scroll_window,"void(s16 x,s16 y,s16 w,s16 h,s16 step,u16 soff,u16 sseg,s16 srow)",platform,,write-mode-1 scroll + sprite row
+func,06c9:b0fe,gfx_create_buffer,"far Desc*(u16 width_px,u16 h,u16 planes)",platform,create_buffer,WINDOW block + descriptor | platform
+func,06c9:ba3c,gfx_plot,"void(s16 x,s16 y,u8 colour)",platform,plot_pixel,single pixel | platform
+func,06c9:bac8,blit_xor_clip_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped XOR | platform
+func,06c9:bae8,blit_xor_clip_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,clipped XOR
+func,06c9:bb08,blit_xor_clip_own,"void(u16 off,u16 seg)",platform,,clipped XOR
+func,06c9:c132,blit_xor_hot,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,unclipped XOR
+func,06c9:c152,blit_xor_raw,"void(u16 off,u16 seg,s16 x,s16 y)",platform,,"unclipped XOR | platform, unclipped"
+func,06c9:c172,blit_xor_own,"void(u16 off,u16 seg)",platform,,"unclipped XOR | platform, unclipped"
+func,06c9:c63e,getkey_until_slow_deadline,int far(void),platform,,buggy u32 compare
+func,06c9:c65c,wait_key_slow,int far(long n),platform,,no callers; buggy u32 compare
+func,06c9:c692,slow_ticks_get,long far(void),platform,,DS:5E90
+func,06c9:c69c,slow_deadline_set,void far(long n),platform,,DS:68D6 = slow + n
+func,06c9:c6b3,slow_deadline_wait,void far(void),platform,,no callers; buggy u32 compare
+func,06c9:c6c5,delay_slow,void far(long n),platform,,busy wait n slow ticks (5 ticks each)
+func,06c9:c6f0,res_count,u16(far arc),platform,,archive resource count
+func,06c9:c701,res_ptr,"far ptr(far arc,u16 index)",platform,,normalised pointer to resource index (offset table not relocated)
+func,06c9:c760,res_name,"void(far arc,u16 index,u32 *out)",platform,,4-char name of resource index
+func,06c9:c784,gfx_grab_screen,"void(s16 sx,s16 sy,s16 dx,s16 dy,s16 w_px,s16 h)",platform,,screen rect -> current RAM target
+func,06c9:c838,res_unflip_archive,"void(far arc,far tmp)",platform,,column-major plane blocks -> row-major
+func,06c9:c958,draw_cursor_glyph,"void(s16 x,s16 y,u16 idx)",platform,,XOR underline cursor
+func,06c9:c984,gfx_draw_line_or,"void(s16 x0,s16 y0,s16 x1,s16 y1,u8 colour)",platform,,TD1-style OR line (calibration screen)
+func,13a3:0006,cos_deg8,s16(AL deg),platform,,8.8 cosine via sin table; not CRT
+func,13a3:0012,sin_deg8,s16(AL s8 deg),platform,,8.8 sine table DS:54AA; not CRT
+func,13a3:0038,tan_deg8,s16(AL s8 deg),platform,tan256_lookup,"8.8 tangent table DS:5560; not CRT | DS:5560 table, sign from AL"
+func,13a8:002e,copy_protection_check,far,platform,copyprot_check,disk-key protection in CRT segment; 0 = passed; port: treat as passed | floppy track 39 check; self-modifying; not CRT; dropped
+func,13a8:0163,copyprot_arm,void (void),game_flow,,"writes failed-state bytes (06c9:424a/4275/42ad/1bf7, DS:5656=0x63)"
+func,13a8:0189,copyprot_pass,void (void),game_flow,,"06c9:1bf7=RETF, DS:5656=0, return 0"
+func,13a8:03f8,_astart,entry,platform,,MSC 5.x startup (MZ entry point)
+func,13a8:04be,_cinit,far,platform,,MSC 5.x
+func,13a8:0582,exit,void(int),platform,,MSC 5.x
+func,13a8:0599,_exit,void(int),platform,,MSC 5.x
+func,13a8:05e0,_ctermsub,near,platform,,MSC 5.x
+func,13a8:060d,_initterm,near,platform,,MSC 5.x
+func,13a8:0620,_FF_MSGBANNER,far,platform,,MSC 5.x
+func,13a8:064a,_chkstk,far,platform,,MSC 5.x
+func,13a8:066e,_nullcheck,far,platform,,MSC 5.x
+func,13a8:0694,_setargv,far,platform,,MSC 5.x (likely)
+func,13a8:0826,_setenvp,far,platform,,MSC 5.x (likely)
+func,13a8:088c,_NMSG_TEXT,far,platform,,MSC 5.x message table DS:82C4
+func,13a8:08b7,_NMSG_WRITE,far,platform,,MSC 5.x
+func,13a8:08e2,_myalloc,near,platform,,MSC 5.x startup heap helper (guess)
+func,13a8:094a,_dosmaperr,near,platform,,MSC 5.x (likely)
+func,13a8:0978,fclose,int(FILE*),platform,,MSC 5.x
+func,13a8:0a3a,flushall,int(void),platform,,MSC 5.x (likely)
+func,13a8:0a6e,fopen,"FILE*(char*,char*)",platform,,MSC 5.x
+func,13a8:0a9c,fprintf,"int(FILE*,char*,...)",platform,,MSC 5.x
+func,13a8:0ae0,fscanf,"int(FILE*,char*,...)",platform,,MSC 5.x
+func,13a8:0b00,printf,"int(char*,...)",platform,,MSC 5.x
+func,13a8:0b42,_filbuf,far,platform,,MSC 5.x (likely)
+func,13a8:0be8,_getbuf,near,platform,,MSC 5.x (likely)
+func,13a8:0c4e,_flsbuf,far,platform,,MSC 5.x (likely)
+func,13a8:0df0,_freebuf,far,platform,,MSC 5.x (likely)
+func,13a8:0e20,_openfile,far,platform,,MSC 5.x (likely)
+func,13a8:0f16,_stbuf,far,platform,,MSC 5.x (likely)
+func,13a8:0fc4,_ftbuf,far,platform,,MSC 5.x (likely)
+func,13a8:105c,fflush,int(FILE*),platform,,MSC 5.x (likely)
+func,13a8:10c6,_input,far,platform,,MSC 5.x scanf engine
+func,13a8:192c,_output,far,platform,,MSC 5.x printf engine
+func,13a8:219a,_getstream,far,platform,,MSC 5.x
+func,13a8:21d6,ungetc,"int(int,FILE*)",platform,,MSC 5.x (likely)
+func,13a8:223e,close,int(int),platform,,MSC 5.x
+func,13a8:225e,lseek,"long(int,long,int)",platform,,MSC 5.x
+func,13a8:22d8,open,"int(char*,int,...)",platform,,MSC 5.x
+func,13a8:247c,read,"int(int,char*,unsigned)",platform,,MSC 5.x
+func,13a8:2558,write,"int(int,char*,unsigned)",platform,,MSC 5.x
+func,13a8:2682,stackavail,far,platform,,MSC 5.x (likely)
+func,13a8:2696,free,void(void*),platform,,MSC 5.x _nfree (likely)
+func,13a8:26a8,malloc,void*(unsigned),platform,,MSC 5.x _nmalloc (likely)
+func,13a8:2852,_brkctl,far,platform,,MSC 5.x (likely)
+func,13a8:2916,strcat,"char*(char*,char*)",platform,,MSC 5.x
+func,13a8:2956,strcpy,"char*(char*,char*)",platform,,MSC 5.x
+func,13a8:2988,strcmp,"int(char*,char*)",platform,,MSC 5.x
+func,13a8:29b4,strlen,int(char*),platform,,MSC 5.x
+func,13a8:29d0,itoa,"char*(int,char*,int)",platform,,MSC 5.x
+func,13a8:29ec,ultoa,"char*(unsigned long,char*,int)",platform,,MSC 5.x (likely; shared body 2bb0)
+func,13a8:29f6,abort,void(void),platform,,MSC 5.x: Abnormal program termination; raise(SIGABRT); _exit(3)
+func,13a8:2a18,isatty,int(int),platform,,MSC 5.x
+func,13a8:2a3c,sprintf,"int(char*,char*,...)",platform,,MSC 5.x
+func,13a8:2a96,sscanf,"int(char*,char*,...)",platform,,MSC 5.x
+func,13a8:2ad8,filelength,long(int),platform,,MSC 5.x
+func,13a8:2b40,stricmp,"int(char*,char*)",platform,,MSC 5.x case-insensitive compare
+func,13a8:2b82,memset,"void*(void*,int,unsigned)",platform,,MSC 5.x
+func,13a8:2c1c,raise,int(int),platform,,MSC 5.x (likely)
+func,13a8:2cb4,signal,"void*(int,void*)",platform,,MSC 5.x (likely)
+func,13a8:2d57,_sigentry,far,platform,,MSC 5.x signal table lookup (likely)
+func,13a8:2e20,unlink,int(char*),platform,,MSC 5.x
+func,13a8:2e2e,_dos_getdrive,void(unsigned*),platform,,MSC 5.x
+func,13a8:2e42,_aFldiv,far,platform,,MSC 5.x long divide
+func,13a8:2ee8,_aFlmul,far,platform,,MSC 5.x long multiply
+func,13a8:2f1c,_aFlrem,far,platform,,MSC 5.x long remainder (likely)
+func,13a8:2fc4,_aFlshl,far,platform,,MSC 5.x long shift left
+func,13a8:2fd0,_aFNalshl,far,platform,,MSC 5.x long shift left through pointer (likely)
+func,16a7:0002,fatal,"void(char*fmt,...)",platform,,gfx_shutdown kbd_restore timer_restore printf abort
+func,16aa:0002,toupper_c,int(char c),platform,,a-z -> A-Z
+func,16ab:000c,draw_text_centered,void(char *s; u16 y),platform,,image 0x16ABC; x = target_w/2 - len*4
+func,16af:0006,draw_rect_outline,void(s16 x0; s16 y0; s16 x1; s16 y1; u16 c),platform,,4 fill_rects
+func,16b8:0000,find_nth_file,"char*(char*spec,int n)",platform,,find_first then find_next n-1 times
+func,16bb:000a,edit_text_line,"int(char*buf,int maxlen,int x,int y,u32 timeout)",platform,,one-line editor; returns exit key or 0 on timeout
+func,16bb:02a8,input_text_line,"int(char*buf,int maxlen,int x,int y,u32 timeout)",platform,,fill spaces then edit_text_line
+func,16bb:02e6,edit_cursor_xor,far,platform,,draw editor cursor if DS:920E
+func,16eb:000a,res_find_list,"void(farptr arc,char*names,farptr*out)",platform,,res_find per 4-char name | platform; aborts on missing
+func,16eb:004c,res_find_list_opt,"void(farptr arc,char*names,farptr*out)",platform,,res_find_opt per 4-char name | platform; stores 0 for missing
+func,16eb:008e,res_find_list_dup,"void(farptr arc,char*names,farptr*out)",platform,,duplicate of 16eb:000a; no callers
+func,16eb:00d0,res_find_list_opt_dup,"void(farptr arc,char*names,farptr*out)",platform,,duplicate of 16eb:004c; no callers
+func,16fc:0002,hotkeys_install,void (void),game_flow,,Ctrl-J/K/P/Q/S/X handlers | binds ^J ^K ^P ^Q ^S ^X
+func,16fc:007c,exit_prompt,void (void),game_flow,prompt_exit_to_dos,EXIT TO DOS (Y/N) (Ctrl-X) | EXIT TO DOS (Y/N) box at 80;88 160x24
+func,16fc:0220,status_strip,"void (char *msg, long ticks)",game_flow,message_box,bottom-row message (sound/music/keyboard) | bottom-line message then delay_slow
+func,16fc:0358,pause_prompt,void (void),game_flow,prompt_pause,PAUSE (Ctrl-P) | PAUSE box at 0;88 320x24
+func,1748:000e,load_shapes,farptr(char*name),platform,,.PES/.ESH search; cache; unpack+UNFLIP or raw load
+func,1748:016a,shapes_paras,u16(char*name),platform,,same search; unpacked or file paragraphs; no callers
+func,1769:000e,joy_calibrate_screen,void(void),platform,,3x3 calibration screen
+global,DS:0040,drive_disk_type,u16[] by drive,game_flow,,type+1 of disk known in drive
+global,DS:004E,disk_id_codes,char[5]x5,game_flow,,obfuscated MASTER/CAR/SCENERY/PLAY/PROGRAM ids
+global,DS:0068,disk_type_names,char*[5],game_flow,,MASTER CAR SCENERY PLAY PROGRAM
+global,DS:0072,master_serial,char[],game_flow,,from diskid.dat
+global,DS:007C,protect_failed,u16,game_flow,,init 1; 0 = protection passed; port sets 0
+global,DS:007E,logo_lines_a,s16[38x4],game_flow,,title line logo
+global,DS:01AE,logo_lines_b,s16[38x4],game_flow,,DSI line logo
+global,DS:02DE,showroom_speed,s16,game_flow,,0..200
+global,DS:02E0,showroom_dist,s16,game_flow,,pixels
+global,DS:02E2,menu_sel,s16,game_flow,,GAMEOPT selection 0..5
+global,DS:02E4,difficulty,s16,game_flow,,0..11
+global,DS:02E6,gas_attendant,char*[10],game_flow,,GASSTUFF sprite per stage
+global,DS:02FA,rating_msgs,char*[24],game_flow,,rating*12+variant*4 (+2 second line)
+global,DS:032A,end_guy_frame2,s16[19],game_flow,,ending guy frame x2
+global,DS:0350,end_cop_frame2,s16[19],game_flow,,ending cop frame x2
+global,DS:0376,end_frame_ticks,s16[19],game_flow,,ending frame durations
+global,DS:039C,drive_names,char[5]x7,game_flow,,none A: .. F:
+global,DS:0504,install_items,char*[7],game_flow,,install menu strings
+global,DS:0520,xs_front,u16[60],scene_render,,195256/(i+4)
+global,DS:0598,ys_front,u16[60],scene_render,,140672/(i+4)
+global,DS:0610,w_front,u16[60],scene_render,,1200/(i+4)
+global,DS:0688,carscale_front,u16[60],scene_render,,car sprite size 0..7
+global,DS:0700,wide_toggle_ptr,u16,scene_render,,road address where road-byte bit 7 changed
+global,DS:0702,row_skip_target,u16,scene_render,,span_fill_to jump target (0B7B / 28BD)
+global,DS:0704,scenery_sky_handles,far[14],scene_render,,rcfA..clo3
+global,DS:073C,front_draw_list,8-byte entries,scene_render,,traffic within 60 units
+global,DS:0804,front_draw_list_len,u16,scene_render,,bytes
+global,DS:0806,opp_row2,u16,scene_render,,opponent distance*2
+global,DS:0808,opp_lat,s16,scene_render,,
+global,DS:080A,cop_row2,u16,scene_render,,police distance*2
+global,DS:080C,cop_lat,s16,scene_render,,
+global,DS:080E,opp_road_handles,far[40],scene_render,,rcr/rc?M/rac/ra?M/brk
+global,DS:098C,cliff_deco_pattern,u16[16],scene_render,,type + count<<8
+global,DS:09AC,r_opp_brake,u8,scene_render,,
+global,DS:09AD,r_cop_brake,u8,scene_render,,
+global,DS:09AE,r_opp_alt,u8,scene_render,,
+global,DS:09B0,start_height_front,s16,scene_render,,static 80
+global,DS:09B2,drive_buf_desc,far ptr,platform,main_desc,320x92x4 driving view buffer (scene_render)
+global,DS:09B6,main_sprite,far,scene_render,,
+global,DS:09BA,main_rowtab,u16,scene_render,,CS offset
+global,DS:09BE,span_bit,u16,scene_render,,
+global,DS:09C0,span_x,u16,scene_render,,
+global,DS:09C4,span_ol,s16[92],scene_render,,
+global,DS:0A7C,span_l,s16[92],scene_render,,
+global,DS:0B34,span_r,s16[92],scene_render,,
+global,DS:0BEC,span_or,s16[92],scene_render,,
+global,DS:0CA4,span_band,s16[92],scene_render,,
+global,DS:0D5C,span_flags,u16[92],scene_render,,
+global,DS:0E14,row_ol,s16[60],scene_render,,
+global,DS:0E8C,row_l,s16[60],scene_render,,
+global,DS:0F04,row_cx,s16[60],scene_render,,
+global,DS:0F7C,row_r,s16[60],scene_render,,
+global,DS:0FF4,row_or,s16[60],scene_render,,
+global,DS:106C,row_sy,s16[60],scene_render,,
+global,DS:10E4,row_clip,s16[60],scene_render,,
+global,DS:115C,row_flags,u8 pairs[60],scene_render,,"flags byte, object byte"
+global,DS:11D4,row_state,u8[60],scene_render,,
+global,DS:124C,row_band,s16[60],scene_render,,
+global,DS:12C4,lat_acc,s16,scene_render,,
+global,DS:12C6,height_acc,s16,scene_render,,
+global,DS:12C8,heading_acc,s16,scene_render,,
+global,DS:12CA,walk_ptr,u16,scene_render,,
+global,DS:12CC,walk_sub,u16,scene_render,,
+global,DS:12CE,top_sy,s16,scene_render,,
+global,DS:12D0,right_cut_x,s16,scene_render,,
+global,DS:12D2,left_sky_x,s16,scene_render,,
+global,DS:12D4,tunnel_in_sy,s16,scene_render,,
+global,DS:12D6,tunnel_in_r,s16,scene_render,,
+global,DS:12D8,tunnel_out_l,s16,scene_render,,
+global,DS:1306,unit_phase,u16,scene_render,,
+global,DS:1308,pitch_acc,s16,scene_render,,
+global,DS:130A,left_cut_x,s16,scene_render,,
+global,DS:130C,right_sky_x,s16,scene_render,,
+global,DS:130E,left_cut_row,u16,scene_render,,
+global,DS:1310,right_cut_row,u16,scene_render,,
+global,DS:1312,left_sky_row,u16,scene_render,,
+global,DS:1314,right_sky_row,u16,scene_render,,
+global,DS:1316,top_row,u16,scene_render,,
+global,DS:1318,tunnel_in_row,u16,scene_render,,
+global,DS:131A,tunnel_out_row,u16,scene_render,,
+global,DS:131C,tunnel_out_sy,s16,scene_render,,
+global,DS:131E,tunnel_in_top,s16,scene_render,,
+global,DS:1320,tunnel_out_top,s16,scene_render,,
+global,DS:1322,tunnel_ceiling,s16,scene_render,,
+global,DS:1324,tunnel_ceiling_row,u16,scene_render,,
+global,DS:1326,tunnel_in_l,s16,scene_render,,
+global,DS:1328,tunnel_out_r,s16,scene_render,,
+global,DS:132A,left_sky_sy2,u16,scene_render,,
+global,DS:132C,right_sky_sy2,u16,scene_render,,
+global,DS:132E,obj_size,u16,scene_render,,
+global,DS:1330,scale4,u16,scene_render,,
+global,DS:1332,scale5,u16,scene_render,,
+global,DS:1336,rec_w0,u16,scene_render,,
+global,DS:1338,rec_w1,u16,scene_render,,
+global,DS:133A,prev_road_byte,u8,scene_render,,
+global,DS:133B,r0_state,u8,scene_render,,
+global,DS:133C,r0_any,u8,scene_render,,
+global,DS:133D,dash_phase,u8,scene_render,,
+global,DS:133E,left_cut_state,u8,scene_render,,
+global,DS:133F,right_cut_state,u8,scene_render,,
+global,DS:1340,r_cop_active,u8,scene_render,,
+global,DS:1341,r_cop_state,u8,scene_render,,
+global,DS:1352,stream_engine,bytes,platform,engine_sound_data,FE00 55:3 56:1 FF engine loop | sound_start_loop argument
+global,DS:1A72,traffic1_handles,far[32],scene_render,,CAR1
+global,DS:1AF2,traffic2_handles,far[32],scene_render,,CAR2
+global,DS:1B72,traffic3_handles,far[32],scene_render,,CAR3
+global,DS:1BF2,cop_car_handles,far[32],scene_render,,COP
+global,DS:1C72,cop_extra_handles,far[80],scene_render,,CLR/brk/CP/cp
+global,DS:1DB2,scenery_handles,far[208],scene_render,,optional
+global,DS:1DB4,scenery_sprites,far ptr[],simulation,,stage scenery sprite table (scene_render)
+global,DS:20F2,road_handles,far[132],scene_render,,ROAD archive
+global,DS:2302,result_jump_table,u16[10],scene_render,,
+global,DS:2316,DIFF_VMAX,u16[12],simulation,,difficulty table
+global,DS:232E,DIFF_ACCEL_MULT,u16[12],simulation,,difficulty table
+global,DS:2346,DIFF_MIN_GAP,u16[12],simulation,,difficulty table
+global,DS:235E,DIFF_CURVE_FACTOR,u16[12],simulation,,difficulty table
+global,DS:2376,DIFF_LAT_RATE,u16[12],simulation,,difficulty table
+global,DS:238E,DIFF_UNUSED,u16[12],simulation,,difficulty table; not read by the sim
+global,DS:23A6,car,u8[0x34F],simulation,car_bin,player <car>.BIN | <CAR>.BIN; +000 num_gears (u8)
+global,DS:23A8,car_rpm_max,u16,simulation,,car +002
+global,DS:23AA,car_rpm_redline,u16,simulation,,car +004
+global,DS:23AC,car_rpm_upshift,u16,simulation,,car +006
+global,DS:23AE,car_rpm_downshift,u16,simulation,,car +008
+global,DS:23B2,car_grip,u32,simulation,,car +00C
+global,DS:23B8,car_gear_ratio,u16[7],simulation,,car +012
+global,DS:23C6,car_knob_xy,u16[32],simulation,,"car +020; 16 (x,y)"
+global,DS:2406,car_gate_slot,u8[9],simulation,,car +060
+global,DS:240F,car_gate_gear,u8[9],simulation,,car +069
+global,DS:2418,car_engine_strength,u8,simulation,,car +072
+global,DS:2419,car_torque,u8[81],simulation,,car +073
+global,DS:26F6,xs_mirror,u16[25],scene_render,,106416/(i+6)
+global,DS:2728,ys_mirror,u16[25],scene_render,,57324/(i+6)
+global,DS:275A,w_mirror,u16[25],scene_render,,360/(i+6)
+global,DS:278C,carscale_mirror,u16[25],scene_render,,
+global,DS:27BE,mirror_scenery_handles,far[11],scene_render,,rcfC..rmt2
+global,DS:27F6,mirror_draw_list,8-byte entries,scene_render,,
+global,DS:28BE,mirror_draw_list_len,u16,scene_render,,
+global,DS:28C8,opp_front_handles,far[32],scene_render,,
+global,DS:2A1C,r_opp_alt_m,u8,scene_render,,
+global,DS:2A1E,start_height_mirror,s16,scene_render,,static 80
+global,DS:2A20,mirror_desc,far,scene_render,,
+global,DS:2A24,mirror_sprite,far,scene_render,,
+global,DS:2A28,mirror_rowtab,u16,scene_render,,
+global,DS:2A2C,row_ol_m,s16[25],scene_render,,
+global,DS:2A5E,row_l_m,s16[25],scene_render,,
+global,DS:2A90,row_cx_m,s16[25],scene_render,,
+global,DS:2AC2,row_r_m,s16[25],scene_render,,
+global,DS:2AF4,row_or_m,s16[25],scene_render,,
+global,DS:2B26,row_sy_m,s16[25],scene_render,,
+global,DS:2B58,row_clip_m,s16[25],scene_render,,
+global,DS:2B8A,row_flags_m,u8 pairs[25],scene_render,,
+global,DS:2BBC,row_state_m,u8[25],scene_render,,
+global,DS:2BEE,row_band_m,s16[25],scene_render,,
+global,DS:2C20,mirror_scalars,struct,scene_render,,front scalars 12C4..1341 + 0x195C
+global,DS:2C62,unit_phase_m,u16,scene_render,,
+global,DS:2C96,prev_road_byte_m,u8,scene_render,,
+global,DS:2C97,r0_state_m,u8,scene_render,,
+global,DS:2C9E,crack_line_ptrs,u16[7],scene_render,,
+global,DS:2E08,pal_normal,u8[17],platform,palette_normal,scene_render copy of the game palette
+global,DS:2E10,pal_flash,u8[17],platform,palette_flash,10..17 00..07 00 (crash flash)
+global,DS:2E22,crack_line_counts,u8[7],scene_render,,
+global,DS:2E29,seq_counter,u8,scene_render,,
+global,DS:2F46,steer_angle,i16,simulation,steer,sim | +-0xE80
+global,DS:2F48,view_yaw,i16,simulation,heading,sim | yaw >> 2 for the renderer
+global,DS:2F4A,yaw,i16,simulation,,+-0x2800
+global,DS:2F4C,knob_x,s16,scene_render,,
+global,DS:2F4E,knob_y,s16,scene_render,,
+global,DS:2F50,dot_x,s16[3],scene_render,,
+global,DS:2F56,gear,u8,simulation,,0 = neutral
+global,DS:2F58,dash_toggle,u8,simulation,gate_visible,D key
+global,DS:2F59,gate_close_delay,u8,scene_render,gearbox_timer,
+global,DS:2F5A,redraw_gate,u8,scene_render,gearbox_dirty,
+global,DS:2F5B,redraw_inst,u8,scene_render,gauges_dirty,
+global,DS:2F5C,redraw_hud,u8,scene_render,clock_dirty,
+global,DS:2F5E,wheel_pose,u16,scene_render,,0/2/4
+global,DS:2F60,gbox_desc,far,scene_render,,
+global,DS:2F64,gbox_sprite,far,scene_render,,
+global,DS:2F68,inst_desc,far,scene_render,,
+global,DS:2F6C,inst_sprite,far,scene_render,,
+global,DS:2F78,marker_save_x,u16,scene_render,,
+global,DS:2F7A,marker_save_y,u16,scene_render,,
+global,DS:2F7C,marker_save_sprite,sprite 2x4,scene_render,,
+global,DS:2FAC,dash_handles,far[25],scene_render,,
+global,DS:3010,dash_digit_handles,far[12],scene_render,,
+global,DS:30E2,gate_prev,u8,scene_render,,
+global,DS:30E3,marker_saved,u8,scene_render,,
+global,DS:30E4,curve_sum,i16,simulation,,last 8 curves
+global,DS:30E6,speed_copy,u16,simulation,,
+global,DS:30E8,ENGINE_NOTE,u16[177],simulation,engine_div,slot 0x55 by rpm | divisor per rpm/64
+global,DS:324A,DRAG,u8[64],simulation,,index speed_mph/4
+global,DS:32AE,noise_div,u16[32],platform,RUMBLE,slot 0x58 values | tone divisors
+global,DS:32EE,CURVE_SPEED,u16[16],simulation,,AI speed per |curve|
+global,DS:330C,onc_next,u16,simulation,,player index into the oncoming list (x8)
+global,DS:330E,same_next,u16,simulation,,player index into the same-direction list (x8)
+global,DS:3310,opp_onc_next,u16,simulation,,
+global,DS:3312,opp_same_next,u16,simulation,,
+global,DS:3314,cop_onc_next,u16,simulation,,
+global,DS:3316,cop_same_next,u16,simulation,,
+global,DS:3318,opp_vmax,u16,simulation,,8.8 mph
+global,DS:331A,cop_vmax,u16,simulation,,8.8 mph
+global,DS:331C,opp_penalties,s16,game_flow,opp_crashes,opponent incidents
+global,DS:331E,race_time,u16,simulation,,tenths of a second
+global,DS:3320,fuel,u16,simulation,,units left
+global,DS:3322,road_curve,i16,simulation,,curve*64
+global,DS:3324,knob_target_x,u16,simulation,,
+global,DS:3326,knob_target_y,u16,simulation,,
+global,DS:3328,gear_ratio,u16,simulation,,
+global,DS:332A,rpm_display,u16,simulation,,slewed rpm
+global,DS:332C,rpm,u16,simulation,,
+global,DS:332E,speed_delta,u16,simulation,,written only
+global,DS:3332,car_centre,i16,simulation,,x+40
+global,DS:3334,car_left,i16,simulation,,x-50
+global,DS:3336,car_right,i16,simulation,,x+130
+global,DS:3338,YAW_MIN,i16,simulation,,-0x2800
+global,DS:333A,YAW_MAX,i16,simulation,,0x2800
+global,DS:333C,grip_limit,i16,simulation,,
+global,DS:333E,lane_gap,u16[3],simulation,,AI gaps left/right/outer right
+global,DS:3344,curve_speed_limit,u16,simulation,,8.8 mph
+global,DS:3346,tick_count,u16,simulation,radar_flags,sim | 10 Hz
+global,DS:3348,radar_level,u16,scene_render,,sim | 0-5
+global,DS:334A,rel_player_opp,i16,simulation,,
+global,DS:334C,rel_player_cop,i16,simulation,,
+global,DS:334E,rel_opp_cop,i16,simulation,,
+global,DS:3350,siren_pitch,u16,simulation,,
+global,DS:3352,idle_ticks,u16,simulation,,
+global,DS:3354,chase_speed,u16,simulation,,written only
+global,DS:3355,ticket_amount,u8,scene_render,,sim
+global,DS:3356,final_time,u16,simulation,,
+global,DS:3358,final_seconds,u16,simulation,,written only
+global,DS:335A,speed_sq,u16,simulation,,
+global,DS:335C,siren_dir,i8,simulation,,
+global,DS:335D,curve_ring,i8[8],simulation,,
+global,DS:3365,knob_anim,u8,simulation,,
+global,DS:3366,fire_held,u8,simulation,,
+global,DS:3367,shift_latch,u8,simulation,,
+global,DS:3368,div_100hz,u8,simulation,,
+global,DS:3369,div_10hz,u8,simulation,,
+global,DS:336A,sound_frame,u8,simulation,,
+global,DS:336B,clock_started,u8,simulation,,
+global,DS:336C,throttle,i8,simulation,,
+global,DS:336D,steer_in,i8,simulation,,
+global,DS:336E,unit_advanced,u8,simulation,,
+global,DS:336F,skidding,u8,simulation,,
+global,DS:3371,station_zone,u8,simulation,,0/1/2
+global,DS:3372,opp_braking,u8,simulation,,
+global,DS:3373,cop_braking,u8,simulation,,
+global,DS:3374,siren_on,u8,simulation,,
+global,DS:3375,opp_crash_timer,u8,simulation,,
+global,DS:3376,demo_at_finish,u8,simulation,,
+global,DS:3377,opp_at_finish,u8,simulation,,
+global,DS:3378,opp_finished,u8,simulation,,
+global,DS:3379,opponent_enabled,u8,scene_render,opp_enabled,
+global,DS:337A,scenery_density,u8,simulation,,
+global,DS:337B,damage_hits,u8,simulation,,
+global,DS:337C,ROADSIDE_HALFWIDTH,u8[20],simulation,,
+global,DS:3394,GEAR_DELTA,i8[9],simulation,,
+global,DS:339D,STEER_DIR,i8[9],simulation,,
+global,DS:33A6,THROTTLE_DIR,i8[9],simulation,,
+global,DS:33AF,gate_mode,u8,simulation,,
+global,DS:33B0,input,u8,simulation,,direction | fire bits
+global,DS:33B1,input_bits,u8,simulation,,
+global,DS:33B2,grind_timer,u8,simulation,,
+global,DS:33B3,overrev_ticks,u8,simulation,,
+global,DS:33B4,pass_mode,i8,simulation,,always 0
+global,DS:33B5,opp_pass_mode,i8,simulation,,always 0
+global,DS:33B6,cop_vs_opp,u8,simulation,,state 0-5
+global,DS:33B7,cop_state,u8,simulation,,sim | state 0-8
+global,DS:33B8,cop_active,u8,scene_render,,sim
+global,DS:33B9,force_meet,u8,simulation,,
+global,DS:33BA,cop_force_meet,u8,simulation,,
+global,DS:33BB,cop_timer,u8,simulation,,
+global,DS:33BC,radar_beep,u8,simulation,,
+global,DS:33BD,lookahead_flags,u8,simulation,,
+global,DS:33BE,ai_road_byte,u8,simulation,,
+global,DS:33BF,gear_broken,u8[7],simulation,,
+global,DS:33C6,engine_damage,u8,simulation,,
+global,DS:33C8,suspension_damage,u16,simulation,,
+global,DS:33CA,steering_health,u16,simulation,,250 at start
+global,DS:33CC,alignment,i16,simulation,,
+global,DS:33CE,fall_scroll,u16,scene_render,fall_depth,sim
+global,DS:33D0,fall_edge_x,i16,simulation,,
+global,DS:33D2,fall_speed,u16,simulation,,
+global,DS:33D4,fall_mode,u8,simulation,,sim | 1 left; 2 right; 4 sinking
+global,DS:33D5,finished,u8,simulation,,last-stage line crossed
+global,DS:33D6,HOTKEY_CHARS,u8[5],simulation,,
+global,DS:33DC,HOTKEY_JT,u16[5],simulation,,
+global,DS:33E6,OBJECT_JT,u16[48],simulation,,
+global,DS:3446,COP_STATE_JT,u16[8],simulation,,
+global,DS:3456,COP_OPP_JT,u16[5],simulation,,
+global,DS:3460,COP_DRIVE_JT,u16[5],simulation,,
+global,DS:346A,stage_dat,u8[0x1E5E],game_flow,dat_image stage,unpacked <scn><n>.DAT; starts with scenery archive name | scenery stage DAT | <SCN>n.DAT image; +0 archive name
+global,DS:347E,road_records,u8[128*4],simulation,dat_records,"flags, curve, pitch, object"
+global,DS:368A,dat_scenery_type,s8[128],scene_render,roadside_type,
+global,DS:370A,dat_scenery_offset,s8[128],scene_render,roadside_side,
+global,DS:378A,stage_scene_words,u16[10],simulation,,
+global,DS:379E,stage_score_k,s16,game_flow,stage_results_words,score factor from stage DAT | game_flow
+global,DS:37A0,rating_speed1,s16,game_flow,,mph threshold rating 0
+global,DS:37A2,rating_speed2,s16,game_flow,,mph threshold rating 1
+global,DS:37A4,rating_speed3,s16,game_flow,,mph threshold rating 2
+global,DS:37A6,right_zones,zone[10],simulation,dat_band_table,"{start, end, a, b}"
+global,DS:37DD,ROADSIDE_SIDE_BASE,i8[],simulation,,side = [37DD + code] for codes 0x1C-0x2F
+global,DS:37F6,median,u8,simulation,dat_wide_left,toggle
+global,DS:37F7,toggle_37f7,u8,simulation,dat_tunnel_style,toggle (renderer)
+global,DS:37F8,backdrop_off,u8,simulation,dat_no_mountains,toggle (renderer)
+global,DS:380D,dat_road_units,u16,scene_render,stage_len,
+global,DS:380F,stage_length,s16,game_flow,dat_stage_length finish_unit,1/420 mile
+global,DS:3811,stage_end,u16,simulation,,DS address after the 3f40 fix-up
+global,DS:3813,oncoming,car[50],simulation,traffic_list_l,"{type, pos, sub, x}"
+global,DS:39A3,same_dir,car[50],simulation,traffic_list_r,"{type, pos, sub, x}"
+global,DS:3B51,road_bytes,u8[],scene_render,road_stream,
+global,DS:52C2,g_tick_id,char[4],platform,,make_tick_id result
+global,DS:52C8,player_pos_lo,u16,scene_render,player_sub,
+global,DS:52CA,player_pos,u16,simulation,player_pos_hi,DS address
+global,DS:52CC,player_lateral,s16,scene_render,player_x,
+global,DS:52CE,speed,u16,simulation,,8.8 mph
+global,DS:52D0,opp_pos_lo,u16,scene_render,opp_sub,
+global,DS:52D2,opp_pos,u16,simulation,opp_pos_hi,0 = none
+global,DS:52D4,opp_lateral,s16,scene_render,opp_x,
+global,DS:52D6,opp_speed,u16,simulation,,
+global,DS:52D8,cop_pos_lo,u16,scene_render,cop_sub,
+global,DS:52DA,cop_pos,u16,simulation,cop_pos_hi,0 = none
+global,DS:52DC,cop_lateral,s16,scene_render,cop_x,
+global,DS:52DE,cop_speed,u16,simulation,,
+global,DS:52E0,sign_work,u16[47],scene_render,,"post width, x, then SGN entry copy at 52E4"
+global,DS:52E4,sign_rec,u16[0x2D],platform,,working copy of one .SGN record (scene_render)
+global,DS:533E,ring_counter,u16,simulation,,scenery ring index
+global,DS:5340,stage_len_copy,u16,simulation,,
+global,DS:5342,distance_left,s16,scene_render,units_to_finish,
+global,DS:5344,heading,u16,simulation,mountain_scroll,1/1024 turn
+global,DS:5346,cloud_scroll,u16,scene_render,,
+global,DS:5348,view_width,u16,scene_render,,320/80
+global,DS:534A,scene_words,u16[5],simulation,col_left,from the DAT
+global,DS:534C,col_right,u16,scene_render,,
+global,DS:534E,col_shoulder,u16,scene_render,,
+global,DS:5350,col_sky,u16,scene_render,,
+global,DS:5352,col_far,u16,scene_render,,
+global,DS:5354,oncoming_count8,u16,simulation,,
+global,DS:5356,same_count8,u16,simulation,,
+global,DS:5358,opp_accel_mult,u16,simulation,,
+global,DS:535A,opp_min_gap,u16,simulation,,
+global,DS:535C,opp_curve_factor,u16,simulation,,
+global,DS:535E,opp_lat_rate,u16,simulation,,
+global,DS:5360,opp_unused_5360,u16,simulation,,
+global,DS:5362,cop_accel_mult,u16,simulation,,
+global,DS:5364,cop_min_gap,u16,simulation,,
+global,DS:5366,cop_curve_factor,u16,simulation,,
+global,DS:5368,cop_lat_rate,u16,simulation,,
+global,DS:536A,cop_unused_536a,u16,simulation,,
+global,DS:536C,crashes,s16,game_flow,,stage crash count
+global,DS:536E,engines_blown,s16,game_flow,,stage count
+global,DS:5370,tickets,s16,game_flow,,speeding tickets
+global,DS:5372,opp_time,s16,game_flow,,opponent stage time 0.1 s | tenths of a second
+global,DS:5374,player_dist,s16,game_flow,result_dist_player,stage distance 1/420 mile | game_flow
+global,DS:5376,opp_dist,s16,game_flow,result_dist_opp,opponent distance | game_flow
+global,DS:5378,finish_letters,u16 quads,scene_render,,"FINISH line segments, -1 terminated"
+global,DS:5420,plane_seg,u16[4],scene_render,,
+global,DS:5428,colour_plane_tables,u8[4x16],scene_render,,
+global,DS:5468,mask_from_bit,u8[16],scene_render,,
+global,DS:5488,pixel_mask,u8[8],scene_render,,
+global,DS:5490,run_state,i8,simulation,drive_result,see simulation.md 4.20
+global,DS:5491,start_flags,u8,scene_render,region_flags,
+global,DS:5494,stream_noise_short,bytes,platform,SND_BUMP,slot 0x58 x11 (22 ticks) | song data
+global,DS:549F,stream_noise_long,bytes,platform,SND_CRASH crash_sound_data,slot 0x58 x51 (102 ticks) | song data
+global,DS:54AA,SIN_DEG,u16[91],simulation,,sin*256
+global,DS:5560,tan256,s16[128],scene_render,TAN_DEG,tan(deg)*256 | tan*256
+global,DS:5616,opp_bin,u8[0x20],game_flow,opp_accel,<opp>O.BIN | <CAR>O.BIN
+global,DS:5636,POLICE_ACCEL,u16[16],simulation,,same values as F40O.BIN
+global,DS:5656,protect_sabotage,u8,game_flow,protection_failed,0x63 failed / 0 passed; port sets 0 | 0x63 until the disk check passes
+global,DS:5657,protect_drive,u8,game_flow,,drive for protection check
+global,DS:585A,font8_glyphs,u8[108*8],platform,,built-in font 0x20-0x8B
+global,DS:5BC2,font8_table,u16[220],platform,,near glyph pointers
+global,DS:5D7A,s_file_error1,char[],platform,,%s FILE ERROR (5e1c/5e8a)
+global,DS:5D88,g_find_path,char[100],platform,,find_first/next result path
+global,DS:5DEC,g_find_name_ptr,near ptr,platform,,name position inside DS:5D88
+global,DS:5DEE,g_dta,u8[43],platform,,DOS DTA for find_first/next (name at DS:5E0C)
+global,DS:5E6E,herc_mode,u8,platform,,1 after herc_init
+global,DS:5E70,herc_crtc_gfx,u8[12],platform,,38 28 2D 0A 7F 06 64 70 02 02 06 07
+global,DS:5E7C,herc_crtc_text,u8[12],platform,,61 50 52 0F 19 06 19 19 02 0D 0B 0C
+global,DS:5E88,old_int8,far ptr,platform,,saved INT 8 vector
+global,DS:5E8C,tick_count,u32,platform,,ticks since install; stops while paused
+global,DS:5E90,slow_count,u32,platform,,+1 every 5 ticks (20 Hz)
+global,DS:5E94,chain_countdown_on,u8,platform,,BIOS chain budget active
+global,DS:5E95,chain_enable,u8,platform,,call BIOS INT 8 each chain period
+global,DS:5E96,chain_budget,s16,platform,,BIOS calls left (100)
+global,DS:5E98,chain_reload,s16,platform,,ticks per chain period (5)
+global,DS:5E9A,chain_count,s16,platform,,countdown to chain period
+global,DS:5E9C,prof_index,u16,platform,,always 0
+global,DS:5E9E,prof_counts,u16[40],platform,,tick counters by prof_index; never read
+global,DS:5EEE,sfx_seg,u16,platform,,current stream segment (0 = none)
+global,DS:5EF0,sfx_off,u16,platform,,current stream offset
+global,DS:5EF2,sfx_loop_seg,u16,platform,,loop stream segment
+global,DS:5EF4,sfx_loop_off,u16,platform,,loop stream offset
+global,DS:5EF6,sfx_note_left,u16,platform,,ticks left of event
+global,DS:5EF8,sfx_note_cut,u16,platform,,cut point (0 legato)
+global,DS:5EFA,sfx_shift,u8,platform,,articulation shift (initial 3)
+global,DS:5EFB,snd_enable,u8,platform,,bit0 sound bit1 music (initial 3)
+global,DS:5EFC,snd_busy,u8,platform,,one-shot active / song playing (shared)
+global,DS:5EFD,sfx_loop_set,u8,platform,,loop stream set
+global,DS:5EFE,timer_paused,u8,platform,,ISR skips counters/routines; speaker off
+global,DS:5F00,sfx_loop_cnt,s16[3],platform,,loop counters
+global,DS:5F06,sfx_loop_start,u16[3],platform,,loop body starts
+global,DS:5F0C,sfx_loop_end,u16[3],platform,,loop end marker offsets
+global,DS:5F12,timer_routines,farptr[6],platform,,5 routines + terminator
+global,DS:5F2E,sfx_div,u16[93],platform,,stream note divisors; slots 0x55-0x58 live
+global,DS:5FD8,tone_engine,u16,simulation,,sound slot
+global,DS:5FDA,tone_effect,u16,simulation,,sound slot
+global,DS:5FDC,tone_slot3,u16,simulation,,sound slot (0xFFFF)
+global,DS:5FDE,tone_rumble,u16,simulation,,sound slot
+global,DS:6048,hotkey_table,u16[128],platform,,Ctrl/ASCII key handlers (seg 06c9)
+global,DS:6148,key_handlers_ext,u16[133],platform,,extended key handlers by scan code
+global,DS:6252,hotkey_busy,u8,platform,,re-entrancy guard
+global,DS:6254,joy_menu_keys,u16[16],platform,,joystick bits -> menu key codes
+global,DS:6274,joy_menu_last,u16,platform,,edge detect
+global,DS:627C,joy_x,u16,platform,,raw count
+global,DS:627E,joy_y,u16,platform,,raw count
+global,DS:6280,joy_port_pre,u8,platform,,port 201h pre-sample
+global,DS:6281,joy_result,u8,platform,,result bits
+global,DS:6282,joy_xmin,s16,platform,,init 0x50
+global,DS:6284,joy_xmax,s16,platform,,init 0
+global,DS:6286,joy_xover_min,s16,platform,,spike filter
+global,DS:6288,joy_xover_cnt,u16,platform,,spike filter (init 0)
+global,DS:628A,joy_xlo,s16,platform,,25% threshold
+global,DS:628C,joy_xhi,s16,platform,,75% threshold
+global,DS:628E,joy_ymin,u16,platform,,init 0x50
+global,DS:6290,joy_ymax,s16,platform,,init 0
+global,DS:6292,joy_yover_min,s16,platform,,spike filter
+global,DS:6294,joy_yover_cnt,u16,platform,,spike filter (init 0)
+global,DS:6296,joy_ylo,u16,platform,,25% threshold
+global,DS:6298,joy_yhi,u16,platform,,75% threshold
+global,DS:629A,joy_xscale,u16,platform,,0x4000/range; unused
+global,DS:629C,joy_yscale,u16,platform,,0x4000/range; unused
+global,DS:629E,joy_dir_map,u8[16],platform,DIR_FROM_BITS,bits -> direction 0..8 | platform table
+global,DS:62AE,old_int9,far ptr,platform,,saved vector
+global,DS:62B2,old_int16,far ptr,platform,,saved vector
+global,DS:62B6,kbd_last_key,u16,platform,,one-key buffer
+global,DS:62B8,kbd_last_scan,u16,platform,,never read
+global,DS:62BA,key_down,u8[0x5A],platform,,held state by XT scan code
+global,DS:6314,kbd_xlat_normal,u8[0x5B],platform,,scan -> ASCII or 0x80|ext
+global,DS:636F,kbd_xlat_shift,u8[0x5B],platform,,
+global,DS:63CA,kbd_xlat_caps,u8[0x5B],platform,,Caps Lock key held
+global,DS:6425,kbd_xlat_ctrl,u8[0x5B],platform,,
+global,DS:6480,kbd_xlat_alt,u8[0x5B],platform,,
+global,DS:64DC,getkey_fn,far ptr,platform,,current getkey (06c9:65c5)
+global,DS:64E0,s_file_error2,char[],platform,,%s FILE ERROR\r (6aa2)
+global,DS:6503,s_bad_pack,char[],platform,,%s INVALID PACK TYPE\r
+global,DS:651A,s_locateshape,char[],platform,,locateshape - %-4.4s SHAPE OR SOUND NOT FOUND\r
+global,DS:654A,s_reserve_oom,char[],platform,,reservememory - OUT OF MEMORY LOADING %s\r
+global,DS:6574,s_reserve_oob,char[],platform,,reservememory - OUT OF MEMORY BLOCKS LOADING %s\r
+global,DS:65A5,s_block_not_found,char[],platform,,memory manager - BLOCK NOT FOUND at SEG= %x\r
+global,DS:65D2,mus_start,u8,platform,,start request
+global,DS:65D3,mus_tempo,u16,platform,,ticks per length unit (low byte used; initial 0x14)
+global,DS:65D5,mus_transpose_base,u16,platform,,always 0
+global,DS:65D9,mus_transpose,u16,platform,,pattern transpose
+global,DS:65E1,mus_on_left,u16,platform,,tone ticks left
+global,DS:65E5,mus_off_left,u16,platform,,silent ticks left
+global,DS:65E9,mus_pat,u16,platform,,next pattern event offset
+global,DS:65ED,mus_list,u16,platform,,next pattern-list entry offset
+global,DS:65EF,mus_list2,u16,platform,,song entry word 2 (unused)
+global,DS:65F1,mus_list_loop,u16,platform,,song first list entry (FF target)
+global,DS:65F3,mus_list2_loop,u16,platform,,unused copy
+global,DS:65F5,mus_seg,u16,platform,,SONGS.BIN segment
+global,DS:65F7,mus_voices,far ptr (seg; off),platform,,VOICES.BIN (segment word first)
+global,DS:65FB,mus_note,u16,platform,,note index incl. transpose
+global,DS:65FD,mus_div,u16,platform,,base divisor
+global,DS:65FF,mus_arp_cnt,u16,platform,,arpeggio countdown
+global,DS:6601,mus_arp_idx,u16,platform,,arpeggio step
+global,DS:6603,mus_vib_cnt,u16,platform,,vibrato countdown
+global,DS:6605,mus_vib_dir,s8,platform,,vibrato direction
+global,DS:6607,mus_vib_ofs,s16,platform,,vibrato divisor offset
+global,DS:6609,mus_voice,u8[28],platform,,current voice record
+global,DS:663B,mus_div_table,u16[85],platform,,music note divisors
+global,DS:66E6,rand8_idx,u16,platform,,rand8 index
+global,DS:66E8,rand8_tab,u8[256],platform,,rand8 table
+global,DS:6808,s_file_error3,char[],platform,,%s FILE ERROR\r (7866)
+global,DS:6818,deadline,u32,platform,,tick deadline
+global,DS:681C,lap_start,u32,platform,,ticks_lap reference
+global,DS:6820,text_fg,u16,platform,,default 3
+global,DS:6822,text_bg,u16,platform,,default 0
+global,DS:6824,text_margin_x,u16,platform,,x after newline
+global,DS:6826,text_x,u16,platform,,pen x
+global,DS:6828,text_y,u16,platform,,pen y
+global,DS:682C,text_glyph_h,u16,platform,,8
+global,DS:682E,text_font,far ptr,platform,,DS:5BC2 (segment ignored)
+global,DS:6832,text_adv_x,u16,platform,,8
+global,DS:6834,text_adv_y,u16,platform,,8
+global,DS:6836,text_enabled,u16,platform,,must be 1
+global,DS:6838,fill_left_mask,u8[8],platform,,FF 7F 3F 1F 0F 07 03 01
+global,DS:6840,fill_right_mask,u8[8],platform,,80 C0 E0 F0 F8 FC FE FF
+global,DS:6848,pal_game,u8[17],platform,,00 01 02 03 04 05 06 07 10 11 12 13 14 15 16 17 00
+global,DS:685A,str_exit_to_dos,char[],platform,,EXIT TO DOS (Y/N)
+global,DS:686C,str_pause,char[],platform,,PAUSE - PRESS ANY KEY TO RESUME
+global,DS:688C,s_ext_pes,char[],platform,,.PES
+global,DS:6891,s_ext_esh,char[],platform,,.ESH
+global,DS:6897,s_pes_cmp,char[],platform,,.PES (stricmp in load_shapes)
+global,DS:689C,s_unflip,char[],platform,,UNFLIP block name
+global,DS:68A4,g_shape_ext,near ptr[3],platform,,"{.PES .ESH """"}"
+global,DS:68AA,s_pes_cmp2,char[],platform,,.PES (shapes_paras)
+global,DS:68B0,s_window,char[],platform,,WINDOW block name (gfx_create_buffer)
+global,DS:68CE,plot_bit_tab,u8[8],platform,,80 40 20 10 08 04 02 01
+global,DS:68D6,slow_deadline,u32,platform,,slow-tick deadline
+global,DS:68DA,g_heap_top,u16,platform,,heap end segment; 0 = not initialised
+global,DS:68DC,g_heap_base,u16,platform,,heap start segment
+global,DS:68DE,g_mem_cs,u16,platform,,CS saved by mem_init (unused)
+global,DS:68E0,g_mem_ds,u16,platform,,DS saved by mem_init (unused)
+global,DS:68E2,g_mem_rec,MemRec[50],platform,,memory records {name[12] paras seg flags}; [0] bottom sentinel; [49]=DS:6C54 top sentinel
+global,DS:6C66,g_mem_first,near ptr,platform,,=DS:68E2
+global,DS:6C68,g_mem_low,near ptr,platform,,top record of in-use low stack
+global,DS:6C6A,g_mem_cache,near ptr,platform,,first record of cache region
+global,DS:6C6C,g_mem_last,near ptr,platform,,=DS:6C54
+global,DS:6CFC,joy_enabled,u8,platform,,1 joystick 0 keyboard
+global,DS:6CFE,joy_calibrated,u16,platform,,bit0 tested by joy_read
+global,DS:6D00,calib_sq_x,u16[9],platform,,calibration squares x
+global,DS:6D12,calib_sq_y,u16[9],platform,,calibration squares y
+global,DS:82B8,gfx_cseg,u16,platform,,0x06C9 for CS:AFxx reads
+global,DS:83C8,ss_ticks,s16,game_flow,,showroom tick counter
+global,DS:83CA,ss_frame_ticks,s16,game_flow,,.SS ticks per frame
+global,DS:83CC,ss_frame,s16,game_flow,,current window frame
+global,DS:83CE,ss_frames,s16,game_flow,,.SS frame count
+global,DS:83D0,menu_prev_sel,s16,game_flow,,menu redraw trigger
+global,DS:83D2,results_y,s16,game_flow,,results text cursor y
+global,DS:8420,total_score,s32,game_flow,,game score
+global,DS:8424,lives,s16,game_flow,,5 at start; +1 per gas station
+global,DS:8426,first_hd_drive,s16,game_flow,,floppy count + 1
+global,DS:8428,player_car_code,char[],game_flow,,car code
+global,DS:842E,scn_font,far ptr,platform,,<scn>.FNT | loaded <SCN>.FNT (segment DS:8430 used)
+global,DS:8430,fnt_segment,u16,scene_render,,
+global,DS:8432,diff_c,s16,game_flow,traffic_speed,90..180 from difficulty
+global,DS:8434,opp_total_score,s32,game_flow,,
+global,DS:8438,avg_speed,s32,game_flow,,player stage mph
+global,DS:843C,ncars_main,s16,game_flow,,car count before extra car disks
+global,DS:843E,game_mode,s16,game_flow,opponent_option,0 clock / 1 duel
+global,DS:8640,songs,far,game_flow,songs_ptr,songs.bin | SONGS.BIN
+global,DS:8644,disk_path,char[],game_flow,,drive + name from ensure_disk
+global,DS:8658,out_of_gas,s16,game_flow,out_of_gas_count,count
+global,DS:865A,stage,s16,game_flow,,0-based stage index
+global,DS:865C,scenery_table,32-byte records x31,game_flow,,SCENES.DAT records
+global,DS:8A1C,drive_of_type,s16[5],game_flow,,drive per disk type (8A1E/8A20/8A22 from select.dat)
+global,DS:8A76,scn_car1_arc,far,game_flow,,<scn>CAR1
+global,DS:8A7A,ncars,s16,game_flow,,
+global,DS:8A7C,scn_car2_arc,far,game_flow,,<scn>CAR2
+global,DS:8A80,scn_disk,s16,game_flow,,disk type of scenery
+global,DS:8A82,car_disk,s16,game_flow,,disk type of player car
+global,DS:8A84,scn_car3_arc,far,game_flow,,<scn>CAR3
+global,DS:8A88,g_edit_x,s16,platform,,text editor x
+global,DS:8A8A,g_edit_y,s16,platform,,text editor y
+global,DS:8A8C,data_disk,s16,game_flow,,disk type holding game data
+global,DS:8A8E,road_arc,far,game_flow,,ROAD
+global,DS:8A92,dash_arc,far,game_flow,,<car>DASH
+global,DS:8A96,cop_arc,far,game_flow,,COP
+global,DS:8A9A,demo_mode,u16,simulation,attract,demo mode | 1 = demo
+global,DS:8A9C,g_edit_pos,s16,platform,,text editor cursor index
+global,DS:8C9E,start_drive,s16,game_flow,,
+global,DS:8CA0,g_edit_cursor_h,s16,platform,,cursor height 1 or 8 (insert)
+global,DS:8CA2,page_buf_desc,far ptr,platform,page,320x200 offscreen page | 320x200x4 page buffer (game_flow)
+global,DS:8CF6,opp_total_time,s16,game_flow,,
+global,DS:8CF8,penalties,s16,game_flow,,crashes+engines+out_of_gas
+global,DS:8CFA,scn_idx,s16,game_flow,,
+global,DS:8CFC,boot_disk_type,s16,game_flow,,
+global,DS:8CFE,opp_idx,s16,game_flow,,
+global,DS:8D00,gameopt_spr,far[9],game_flow,,cloc comp ycar ocar scen inst txt0 txt1 arrw
+global,DS:8D24,car_table,30-byte records x31,game_flow,,CARS.DAT records
+global,DS:90A8,diff_easy,s16,game_flow,auto_trans,difficulty < 4 and not attract
+global,DS:90AA,nscenes,s16,game_flow,,
+global,DS:90AC,opp_stage_score,s32,game_flow,,
+global,DS:90B0,opp_car_code,char[],game_flow,,
+global,DS:90B6,catalog_dirty,s16,game_flow,,
+global,DS:90B8,hisc_block,u8[0x154],game_flow,,hisc.dat image (top 6 table at +0)
+global,DS:9154,best_time,s16[10],game_flow,,hisc block +0x9C
+global,DS:9168,best_avg,s32[10],game_flow,,hisc block +0xB0
+global,DS:9190,best_score,s32[10],game_flow,,hisc block +0xD8
+global,DS:91B8,best_cum_time,s32[10],game_flow,,hisc block +0x100
+global,DS:91E0,best_cum_score,s32[10],game_flow,,hisc block +0x128
+global,DS:9208,hisc_checksum,u32,game_flow,,hisc block +0x150
+global,DS:920C,diff_b,s16,game_flow,traffic_keep,127..255 from difficulty
+global,DS:920E,g_edit_cursor_on,s16,platform,,cursor blink state
+global,DS:9210,total_time,s16,game_flow,,0.1 s
+global,DS:9212,scn_code,char[],game_flow,,scenery code
+global,DS:9218,player_name,char[16],game_flow,,name entry buffer
+global,DS:9228,opp_road_arc,far,game_flow,,<opp>ROAD
+global,DS:922C,num_drives,s16,game_flow,,
+global,DS:922E,diff_score_pct,s16,game_flow,,33..100
+global,DS:9258,outran_police,u8,game_flow,escaped,set by 06c9:5844; triggers police ending
+global,DS:925C,stage_score,s32,game_flow,,
+global,DS:9260,scenery_arc,far,game_flow,,archive named in stage DAT
+global,DS:9264,opp_disk,s16,game_flow,,
+global,DS:9266,car_idx,s16,game_flow,,
+global,DS:940C,scn_signs,far ptr,platform,sgn_ptr stage_sgn,<scn><n>.SGN | loaded <SCN><n>.SGN (segment DS:940E used)
+global,DS:940E,sgn_segment,u16,scene_render,,
+global,DS:9410,last_stage,s16,game_flow,,
+global,DS:9412,opp_avg_speed,s32,game_flow,,
+global,DS:9416,diskid_buf,char[],game_flow,,
+global,DS:942A,voices,far,game_flow,voices_ptr,voices.bin | VOICES.BIN
+global,DS:942E,stage_time,s16,game_flow,clock_seconds time_seconds,0.1 s

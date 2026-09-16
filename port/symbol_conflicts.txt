@@ -1,0 +1,79 @@
+func 06c9:3f40: scene_render=sim_stage_init; simulation=sim_stage_start
+func 06c9:3ff9: scene_render=sim_life_reset; simulation=sim_restart_reset
+func 06c9:412c: platform=drive_sound_update; simulation=sound_tick
+func 06c9:7d5e: platform=gfx_select_target; scene_render=select_target
+func 06c9:843e: platform=gfx_clear_clip; scene_render=fill_clip
+func 06c9:89a2: platform=gfx_fill_rect_clip; scene_render=fill_rect_clip
+func 06c9:b0fe: platform=gfx_create_buffer; scene_render=create_buffer
+func 06c9:ba3c: platform=gfx_plot; scene_render=plot_pixel
+func 13a3:0038: platform=tan_deg8; scene_render=tan256_lookup
+func 13a8:002e: game_flow=copyprot_check; platform=copy_protection_check
+func 16fc:007c: game_flow=exit_prompt; platform=prompt_exit_to_dos
+func 16fc:0220: game_flow=status_strip; platform=message_box
+func 16fc:0358: game_flow=pause_prompt; platform=prompt_pause
+global DS:09B2: platform=drive_buf_desc; scene_render=main_desc
+global DS:1352: platform=stream_engine; scene_render=engine_sound_data
+global DS:23A6: game_flow=car_bin; simulation=car
+global DS:2E08: platform=pal_normal; scene_render=palette_normal
+global DS:2E10: platform=pal_flash; scene_render=palette_flash
+global DS:2F46: scene_render=steer; simulation=steer_angle
+global DS:2F48: scene_render=heading; simulation=view_yaw
+global DS:2F58: scene_render=gate_visible; simulation=dash_toggle
+global DS:2F59: scene_render=gate_close_delay; simulation=gearbox_timer
+global DS:2F5A: scene_render=redraw_gate; simulation=gearbox_dirty
+global DS:2F5B: scene_render=redraw_inst; simulation=gauges_dirty
+global DS:2F5C: scene_render=redraw_hud; simulation=clock_dirty
+global DS:30E8: platform=engine_div; simulation=ENGINE_NOTE
+global DS:32AE: platform=noise_div; simulation=RUMBLE
+global DS:331C: game_flow=opp_penalties; simulation=opp_crashes
+global DS:3346: scene_render=radar_flags; simulation=tick_count
+global DS:3379: scene_render=opponent_enabled; simulation=opp_enabled
+global DS:33CE: scene_render=fall_scroll; simulation=fall_depth
+global DS:346A: game_flow=stage_dat; scene_render=dat_image; simulation=stage
+global DS:347E: scene_render=dat_records; simulation=road_records
+global DS:368A: scene_render=dat_scenery_type; simulation=roadside_type
+global DS:370A: scene_render=dat_scenery_offset; simulation=roadside_side
+global DS:379E: game_flow=stage_score_k; simulation=stage_results_words
+global DS:37A6: scene_render=dat_band_table; simulation=right_zones
+global DS:37F6: scene_render=dat_wide_left; simulation=median
+global DS:37F7: scene_render=dat_tunnel_style; simulation=toggle_37f7
+global DS:37F8: scene_render=dat_no_mountains; simulation=backdrop_off
+global DS:380D: scene_render=dat_road_units; simulation=stage_len
+global DS:380F: game_flow=stage_length; scene_render=dat_stage_length; simulation=finish_unit
+global DS:3813: scene_render=traffic_list_l; simulation=oncoming
+global DS:39A3: scene_render=traffic_list_r; simulation=same_dir
+global DS:3B51: scene_render=road_bytes; simulation=road_stream
+global DS:52C8: scene_render=player_pos_lo; simulation=player_sub
+global DS:52CA: scene_render=player_pos_hi; simulation=player_pos
+global DS:52CC: scene_render=player_lateral; simulation=player_x
+global DS:52D0: scene_render=opp_pos_lo; simulation=opp_sub
+global DS:52D2: scene_render=opp_pos_hi; simulation=opp_pos
+global DS:52D4: scene_render=opp_lateral; simulation=opp_x
+global DS:52D8: scene_render=cop_pos_lo; simulation=cop_sub
+global DS:52DA: scene_render=cop_pos_hi; simulation=cop_pos
+global DS:52DC: scene_render=cop_lateral; simulation=cop_x
+global DS:5342: scene_render=distance_left; simulation=units_to_finish
+global DS:5344: scene_render=mountain_scroll; simulation=heading
+global DS:534A: scene_render=col_left; simulation=scene_words
+global DS:5374: game_flow=player_dist; scene_render=result_dist_player; simulation=player_dist
+global DS:5376: game_flow=opp_dist; scene_render=result_dist_opp; simulation=opp_dist
+global DS:5490: scene_render=drive_result; simulation=run_state
+global DS:5491: scene_render=start_flags; simulation=region_flags
+global DS:5494: platform=stream_noise_short; simulation=SND_BUMP
+global DS:549F: platform=stream_noise_long; scene_render=crash_sound_data; simulation=SND_CRASH
+global DS:5560: scene_render=tan256; simulation=TAN_DEG
+global DS:5616: game_flow=opp_bin; simulation=opp_accel
+global DS:5656: game_flow=protect_sabotage; simulation=protection_failed
+global DS:629E: platform=joy_dir_map; simulation=DIR_FROM_BITS
+global DS:8432: game_flow=diff_c; simulation=traffic_speed
+global DS:843E: game_flow=game_mode; simulation=opponent_option
+global DS:8640: game_flow=songs; platform=songs_ptr
+global DS:8658: game_flow=out_of_gas; simulation=out_of_gas_count
+global DS:8A9A: game_flow=attract; scene_render=demo_mode; simulation=demo_mode
+global DS:8CA2: game_flow=page; platform=page_buf_desc
+global DS:90A8: game_flow=diff_easy; simulation=auto_trans
+global DS:920C: game_flow=diff_b; simulation=traffic_keep
+global DS:9258: game_flow=outran_police; simulation=escaped
+global DS:940C: game_flow=stage_sgn; platform=scn_signs; simulation=sgn_ptr
+global DS:942A: game_flow=voices; platform=voices_ptr
+global DS:942E: game_flow=stage_time; scene_render=time_seconds; simulation=clock_seconds

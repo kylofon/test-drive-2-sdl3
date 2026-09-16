@@ -13,7 +13,8 @@ rebuilt with a newer compiler.
 | Path | What |
 |---|---|
 | `work/TD2EGA_unp.exe` | EXEPACK-unpacked MZ (`tools/unexepack.py`); image offsets exclude the MZ header |
-| `port/decomp/td2ega_ds.c` | Ghidra decompilation of every indexed function, DGROUP globals renamed to DS offsets |
+| `port/decomp/td2ega_ds.c` | Ghidra decompilation of every indexed function with the merged names from `port/symbols.csv`; unnamed DGROUP globals renamed to DS offsets |
+| `port/symbols.csv`, `port/symbol_conflicts.txt` | Merged symbols of all specs (`tools/merge_symbols.py`) and the names the specs disagree on |
 | `port/decomp/td2ega_globals_xref.txt` | For each DS global: which functions use it |
 | `port/td2ega_functions.json` / `.csv` | Capstone index: extent, near/far, callers/callees, DS reads/writes, strings, ints, ports, jump tables |
 | `port/td2ega_td1_matches.csv` | TD2 functions that match a named TD1 function (candidate names; short functions match loosely) |
@@ -41,7 +42,7 @@ rebuilt with a newer compiler.
 * The decompiler sometimes shows `in_stack_…`/`unaff_…` for register arguments of assembly routines;
   describe those arguments by register (`AX`, `ES:DI`) in the spec.
 
-## Known so far (don't re-derive, cite FORMATS.md)
+## Known so far (don't re-derive, cite FORMATS.md and the specs in `port/spec/`)
 
 * Packed file format (Huffman + RLE) and the resource archive / sprite header. Open: the high-nibble
   plane-map flags, see FORMATS.md.
@@ -57,6 +58,20 @@ rebuilt with a newer compiler.
   `sim_timer_isr`). `06c9:1b2c` (called from `0267:15e4`) looks like the stage runner.
 * The disk-swap / `DISKID.DAT` / Play Disk code (`0000:0297`–`0000:0651`, parts of `0432`) is dropped
   by the port: document it briefly only.
+
+## Regenerating the Ghidra output
+
+```
+python tools/merge_symbols.py
+tr -d '' < port/symbols_ghidra.txt > work/symbols_ghidra.txt
+tr -d '' < port/td2ega_starts.txt > work/td2ega_starts.txt
+analyzeHeadless _ghidra TD2 -import work/TD2EGA_unp.exe -overwrite -scriptPath tools/ghidra     -preScript SetDS.java 178F -postScript ApplySymbols.java work/symbols_ghidra.txt 178F     -postScript DecompileAll.java work/td2ega_starts.txt port/decomp/td2ega.c 178F 120
+python tools/ghidra/postprocess.py port/decomp/td2ega.c 178F
+```
+
+`SetDS.java` pins DS to DGROUP before auto-analysis; without it Ghidra resolves some data references
+against the wrong segment (0x40 off). Ghidra still gets assembly-heavy functions wrong (e.g. the jump
+table in `06c9:1b2c`, the driving tick): the specs were checked against the disassembly.
 
 ## Subsystem split
 

@@ -1,0 +1,275 @@
+kind,address,name,type,notes
+func,06c9:3f40,sim_stage_start,far void(void),stage reset; look-ahead flag checksum; end fix-up; registers 06c9:6269 and 06c9:403b in the timer list
+func,06c9:3ff9,sim_restart_reset,far void(void),per-life reset; calls 5427
+func,06c9:403b,sim_timer_routine,far void(void) sets DS,100 Hz timer-list routine; 10 Hz sim tick; 1 Hz clock
+func,06c9:412c,sound_tick,near,rpm needle slew; engine/rumble/effect tone divisors DS:5FD8-5FDE
+func,06c9:420a,read_input,near,controls; idle quit; hotkeys
+func,06c9:4281,decode_controls,near,demo autopilot; automatic transmission; steer/throttle; gear selection
+func,06c9:43c3,shift_knob_anim,near,knob animation 6 px/tick; shift completion
+func,06c9:4441,clutch_check,"near (CX old rpm, DX new rpm)",downshift lurch -5 mph; grind tone
+func,06c9:448a,curve_sum,near,sum of last 8 curve bytes -> DS:30E4; speed -> DS:30E6
+func,06c9:44a6,hotkeys,near (AX key),Esc/o/O/d/D via DS:33D6 and DS:33DC
+func,06c9:44bf,key_esc,near,run_state = 0xFF
+func,06c9:44c5,key_gate_mode,near,gate_mode ^= 1 unless automatic
+func,06c9:44d2,key_dash_toggle,near,DS:2F58 ^= 1
+func,06c9:44d8,brake_1600,near,speed -= 1600
+func,06c9:44de,brake_800,near,speed -= 800 (skid)
+func,06c9:44e4,brake_400,near,speed -= 400 (broken gear)
+func,06c9:44ea,engine,near,throttle; brake; clutch; torque
+func,06c9:4588,free_rev,near,rpm -200 down to 800; or +600 in neutral with throttle
+func,06c9:45bf,drag_apply,near (DX force),speed += force - drag
+func,06c9:45fc,brake,near (DX amount),speed -= DX floor 0; update_rpm
+func,06c9:4612,update_rpm,"near -> CX old, DX new",rpm = ratio*speed>>16 min 800; nothing in neutral
+func,06c9:4639,overrev_check,near,30 ticks at redline or above max -> run_state 3
+func,06c9:4674,motion,near,"pull-over; sub-unit step; unit loop (spawn, fuel, grip, yaw, collisions, objects)"
+func,06c9:4929,obj_station_zone,near,object 0x0A
+func,06c9:4947,obj_past_station,near,object 0x0C
+func,06c9:494d,obj_parked_cop,near (BP pos),object 0x15
+func,06c9:495d,obj_roadblock,near (BP pos),object 0x16
+func,06c9:499a,obj_place_roadside,near (BX code*2),objects 0x1C-0x2F; writes through SS
+func,06c9:49c9,obj_toggle_37f7,near,object 0x17
+func,06c9:49cf,obj_toggle_median,near,object 0x18
+func,06c9:49d5,obj_toggle_37f8,near,object 0x19
+func,06c9:49db,obj_density_up,near,object 0x1A
+func,06c9:49e1,obj_density_down,near,object 0x1B
+func,06c9:49e7,obj_sign_posts,near,objects 0x01-0x09
+func,06c9:4a18,obj_none,near,objects 0x00 and 0x0B
+func,06c9:4a19,obj_lane_obstacle,near (BX code*2),objects 0x0D-0x14
+func,06c9:4a2e,hit_object,near,speed -1600; bump sound; random damage
+func,06c9:4afa,car_edges,near,car edges; station and out-of-gas stop checks
+func,06c9:4b5d,median_posts,near,posts every 16 units
+func,06c9:4b9a,road_edges,near,walls; drop-offs; shoulder; right-side zones
+func,06c9:4c85,roadside_hit,near,scenery and billboard collision
+func,06c9:4d26,overlap,"near (AX centre, BX half) -> ZF",lateral overlap with the car
+func,06c9:4d3f,traffic,near,moves traffic lists; meet/push checks
+func,06c9:4f92,meet_check,"near (SI,BP,CX,DX:AX,DI) -> ZF hit",reaching the next car of a list
+func,06c9:5022,push_behind,"near (SI,DX:AX,DI)",keeps same-direction cars behind a driver
+func,06c9:50a1,opponent_ai,near,computer opponent
+func,06c9:5299,ai_road_scan,"near (BX pos, DI factor) -> BL",lane availability; curve speed limit
+func,06c9:52fd,ai_gap,"near (DX,CX,AX,BX) -> AX",time-to-reach score; 100 = free
+func,06c9:5334,ai_lane_min,"near (AX gap, BX x)",minimum gap per lane
+func,06c9:535b,ai_pick_lane,"near (AX x) -> CX target, DX gap",lane choice
+func,06c9:53a6,police,near,radar trap and chase dispatch
+func,06c9:5427,police_reset,near,removes the police car
+func,06c9:5446,police_start,near,police car appears 26 units behind the player
+func,06c9:54f4,police_chase_opp,label,states DS:33B6 via DS:3456
+func,06c9:557a,police_chase_player,label,states DS:33B7 via DS:3446
+func,06c9:56ed,police_drive,near,police movement; may pop the caller return address
+func,06c9:5880,demo_steer,near,demo autopilot lane and brake
+func,06c9:595f,pass_collisions,near,player/opponent/police crossings
+func,06c9:5a25,pass_check,"near (SI,DI,BX,DX) -> CX, CF",sign change with lateral overlap
+func,06c9:5a6f,fall_anim,near,falling and sinking
+func,06c9:5ada,traffic_resync,far void(void),clears traffic around the player; finds list indices
+func,06c9:5b5a,resync_list,near,pushes cars out of the window
+func,06c9:5c30,nearest_ahead,"near (SI,CX,DX:AX) -> SI",nearest car ahead
+func,06c9:5c5a,at_finish,"near (BX,DI,SI) -> AL",braking distance to the finish
+func,06b3:0008,steer_update,far void(void),steering integration and self-centring (C)
+global,DS:1DB4,scenery_sprites,far ptr[],stage scenery sprite table (scene_render)
+global,DS:2316,DIFF_VMAX,u16[12],difficulty table
+global,DS:232E,DIFF_ACCEL_MULT,u16[12],difficulty table
+global,DS:2346,DIFF_MIN_GAP,u16[12],difficulty table
+global,DS:235E,DIFF_CURVE_FACTOR,u16[12],difficulty table
+global,DS:2376,DIFF_LAT_RATE,u16[12],difficulty table
+global,DS:238E,DIFF_UNUSED,u16[12],difficulty table; not read by the sim
+global,DS:23A6,car,u8[0x34F],<CAR>.BIN; +000 num_gears (u8)
+global,DS:23A8,car_rpm_max,u16,car +002
+global,DS:23AA,car_rpm_redline,u16,car +004
+global,DS:23AC,car_rpm_upshift,u16,car +006
+global,DS:23AE,car_rpm_downshift,u16,car +008
+global,DS:23B2,car_grip,u32,car +00C
+global,DS:23B8,car_gear_ratio,u16[7],car +012
+global,DS:23C6,car_knob_xy,u16[32],"car +020; 16 (x,y)"
+global,DS:2406,car_gate_slot,u8[9],car +060
+global,DS:240F,car_gate_gear,u8[9],car +069
+global,DS:2418,car_engine_strength,u8,car +072
+global,DS:2419,car_torque,u8[81],car +073
+global,DS:2F46,steer_angle,i16,+-0xE80
+global,DS:2F48,view_yaw,i16,yaw >> 2 for the renderer
+global,DS:2F4A,yaw,i16,+-0x2800
+global,DS:2F4C,knob_x,u16,
+global,DS:2F4E,knob_y,u16,
+global,DS:2F56,gear,u8,0 = neutral
+global,DS:2F58,dash_toggle,u8,D key
+global,DS:2F59,gearbox_timer,u8,
+global,DS:2F5A,gearbox_dirty,u8,
+global,DS:2F5B,gauges_dirty,u8,
+global,DS:2F5C,clock_dirty,u8,
+global,DS:30E4,curve_sum,i16,last 8 curves
+global,DS:30E6,speed_copy,u16,
+global,DS:30E8,ENGINE_NOTE,u16[177],divisor per rpm/64
+global,DS:324A,DRAG,u8[64],index speed_mph/4
+global,DS:32AE,RUMBLE,u16[32],tone divisors
+global,DS:32EE,CURVE_SPEED,u16[16],AI speed per |curve|
+global,DS:330C,onc_next,u16,player index into the oncoming list (x8)
+global,DS:330E,same_next,u16,player index into the same-direction list (x8)
+global,DS:3310,opp_onc_next,u16,
+global,DS:3312,opp_same_next,u16,
+global,DS:3314,cop_onc_next,u16,
+global,DS:3316,cop_same_next,u16,
+global,DS:3318,opp_vmax,u16,8.8 mph
+global,DS:331A,cop_vmax,u16,8.8 mph
+global,DS:331C,opp_crashes,u16,
+global,DS:331E,race_time,u16,tenths of a second
+global,DS:3320,fuel,u16,units left
+global,DS:3322,road_curve,i16,curve*64
+global,DS:3324,knob_target_x,u16,
+global,DS:3326,knob_target_y,u16,
+global,DS:3328,gear_ratio,u16,
+global,DS:332A,rpm_display,u16,slewed rpm
+global,DS:332C,rpm,u16,
+global,DS:332E,speed_delta,u16,written only
+global,DS:3332,car_centre,i16,x+40
+global,DS:3334,car_left,i16,x-50
+global,DS:3336,car_right,i16,x+130
+global,DS:3338,YAW_MIN,i16,-0x2800
+global,DS:333A,YAW_MAX,i16,0x2800
+global,DS:333C,grip_limit,i16,
+global,DS:333E,lane_gap,u16[3],AI gaps left/right/outer right
+global,DS:3344,curve_speed_limit,u16,8.8 mph
+global,DS:3346,tick_count,u16,10 Hz
+global,DS:3348,radar_level,u16,0-5
+global,DS:334A,rel_player_opp,i16,
+global,DS:334C,rel_player_cop,i16,
+global,DS:334E,rel_opp_cop,i16,
+global,DS:3350,siren_pitch,u16,
+global,DS:3352,idle_ticks,u16,
+global,DS:3354,chase_speed,u16,written only
+global,DS:3356,final_time,u16,
+global,DS:3358,final_seconds,u16,written only
+global,DS:335A,speed_sq,u16,
+global,DS:335C,siren_dir,i8,
+global,DS:335D,curve_ring,i8[8],
+global,DS:3365,knob_anim,u8,
+global,DS:3366,fire_held,u8,
+global,DS:3367,shift_latch,u8,
+global,DS:3368,div_100hz,u8,
+global,DS:3369,div_10hz,u8,
+global,DS:336A,sound_frame,u8,
+global,DS:336B,clock_started,u8,
+global,DS:336C,throttle,i8,
+global,DS:336D,steer_in,i8,
+global,DS:336E,unit_advanced,u8,
+global,DS:336F,skidding,u8,
+global,DS:3371,station_zone,u8,0/1/2
+global,DS:3372,opp_braking,u8,
+global,DS:3373,cop_braking,u8,
+global,DS:3374,siren_on,u8,
+global,DS:3375,opp_crash_timer,u8,
+global,DS:3376,demo_at_finish,u8,
+global,DS:3377,opp_at_finish,u8,
+global,DS:3378,opp_finished,u8,
+global,DS:3379,opp_enabled,u8,
+global,DS:337A,scenery_density,u8,
+global,DS:337B,damage_hits,u8,
+global,DS:337C,ROADSIDE_HALFWIDTH,u8[20],
+global,DS:3394,GEAR_DELTA,i8[9],
+global,DS:339D,STEER_DIR,i8[9],
+global,DS:33A6,THROTTLE_DIR,i8[9],
+global,DS:33AF,gate_mode,u8,
+global,DS:33B0,input,u8,direction | fire bits
+global,DS:33B1,input_bits,u8,
+global,DS:33B2,grind_timer,u8,
+global,DS:33B3,overrev_ticks,u8,
+global,DS:33B4,pass_mode,i8,always 0
+global,DS:33B5,opp_pass_mode,i8,always 0
+global,DS:33B6,cop_vs_opp,u8,state 0-5
+global,DS:33B7,cop_state,u8,state 0-8
+global,DS:33B8,cop_active,u8,
+global,DS:33B9,force_meet,u8,
+global,DS:33BA,cop_force_meet,u8,
+global,DS:33BB,cop_timer,u8,
+global,DS:33BC,radar_beep,u8,
+global,DS:33BD,lookahead_flags,u8,
+global,DS:33BE,ai_road_byte,u8,
+global,DS:33BF,gear_broken,u8[7],
+global,DS:33C6,engine_damage,u8,
+global,DS:33C8,suspension_damage,u16,
+global,DS:33CA,steering_health,u16,250 at start
+global,DS:33CC,alignment,i16,
+global,DS:33CE,fall_depth,u16,
+global,DS:33D0,fall_edge_x,i16,
+global,DS:33D2,fall_speed,u16,
+global,DS:33D4,fall_mode,u8,1 left; 2 right; 4 sinking
+global,DS:33D5,finished,u8,last-stage line crossed
+global,DS:33D6,HOTKEY_CHARS,u8[5],
+global,DS:33DC,HOTKEY_JT,u16[5],
+global,DS:33E6,OBJECT_JT,u16[48],
+global,DS:3446,COP_STATE_JT,u16[8],
+global,DS:3456,COP_OPP_JT,u16[5],
+global,DS:3460,COP_DRIVE_JT,u16[5],
+global,DS:346A,stage,u8[0x1E5E],<SCN>n.DAT image; +0 archive name
+global,DS:347E,road_records,u8[128*4],"flags, curve, pitch, object"
+global,DS:368A,roadside_type,u8[128],
+global,DS:370A,roadside_side,i8[128],
+global,DS:378A,stage_scene_words,u16[10],
+global,DS:379E,stage_results_words,u16[4],game_flow
+global,DS:37A6,right_zones,zone[10],"{start, end, a, b}"
+global,DS:37DD,ROADSIDE_SIDE_BASE,i8[],side = [37DD + code] for codes 0x1C-0x2F
+global,DS:37F6,median,u8,toggle
+global,DS:37F7,toggle_37f7,u8,toggle (renderer)
+global,DS:37F8,backdrop_off,u8,toggle (renderer)
+global,DS:380D,stage_len,u16,
+global,DS:380F,finish_unit,u16,
+global,DS:3811,stage_end,u16,DS address after the 3f40 fix-up
+global,DS:3813,oncoming,car[50],"{type, pos, sub, x}"
+global,DS:39A3,same_dir,car[50],"{type, pos, sub, x}"
+global,DS:3B51,road_stream,u8[],
+global,DS:52C8,player_sub,u16,
+global,DS:52CA,player_pos,u16,DS address
+global,DS:52CC,player_x,i16,
+global,DS:52CE,speed,u16,8.8 mph
+global,DS:52D0,opp_sub,u16,
+global,DS:52D2,opp_pos,u16,0 = none
+global,DS:52D4,opp_x,i16,
+global,DS:52D6,opp_speed,u16,
+global,DS:52D8,cop_sub,u16,
+global,DS:52DA,cop_pos,u16,0 = none
+global,DS:52DC,cop_x,i16,
+global,DS:52DE,cop_speed,u16,
+global,DS:533E,ring_counter,u16,scenery ring index
+global,DS:5340,stage_len_copy,u16,
+global,DS:5342,units_to_finish,u16,
+global,DS:5344,heading,u16,1/1024 turn
+global,DS:5346,cloud_scroll,u16,
+global,DS:534A,scene_words,u16[5],from the DAT
+global,DS:5354,oncoming_count8,u16,
+global,DS:5356,same_count8,u16,
+global,DS:5358,opp_accel_mult,u16,
+global,DS:535A,opp_min_gap,u16,
+global,DS:535C,opp_curve_factor,u16,
+global,DS:535E,opp_lat_rate,u16,
+global,DS:5360,opp_unused_5360,u16,
+global,DS:5362,cop_accel_mult,u16,
+global,DS:5364,cop_min_gap,u16,
+global,DS:5366,cop_curve_factor,u16,
+global,DS:5368,cop_lat_rate,u16,
+global,DS:536A,cop_unused_536a,u16,
+global,DS:5370,tickets,u16,
+global,DS:5372,opp_time,u16,tenths of a second
+global,DS:5374,player_dist,u16,game_flow
+global,DS:5376,opp_dist,u16,game_flow
+global,DS:5490,run_state,i8,see simulation.md 4.20
+global,DS:5491,region_flags,u8,
+global,DS:5494,SND_BUMP,u8[],song data
+global,DS:549F,SND_CRASH,u8[],song data
+global,DS:54AA,SIN_DEG,u16[91],sin*256
+global,DS:5560,TAN_DEG,u16[91],tan*256
+global,DS:5616,opp_accel,u16[16],<CAR>O.BIN
+global,DS:5636,POLICE_ACCEL,u16[16],same values as F40O.BIN
+global,DS:5656,protection_failed,u8,0x63 until the disk check passes
+global,DS:5FD8,tone_engine,u16,sound slot
+global,DS:5FDA,tone_effect,u16,sound slot
+global,DS:5FDC,tone_slot3,u16,sound slot (0xFFFF)
+global,DS:5FDE,tone_rumble,u16,sound slot
+global,DS:629E,DIR_FROM_BITS,u8[16],platform table
+global,DS:8424,lives,u16,
+global,DS:8432,traffic_speed,u16,
+global,DS:843E,opponent_option,u16,
+global,DS:8658,out_of_gas_count,u16,
+global,DS:8A9A,demo_mode,u16,1 = demo
+global,DS:90A8,auto_trans,u8,
+global,DS:920C,traffic_keep,u16,
+global,DS:9258,escaped,u8,
+global,DS:940C,sgn_ptr,far ptr,
+global,DS:9410,last_stage,u16,
+global,DS:942E,clock_seconds,u16,
