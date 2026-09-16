@@ -123,8 +123,30 @@ static void audio_for_one_tick(void)
     SDL_PutAudioStreamData(audio, buf, n * (int)sizeof(s16));
 }
 
+/* Developer aid: with TD2_SNAPSHOT_DIR set, every presented frame at least 2 s after the previous
+ * snapshot is saved there as snapNNNN.bmp (works with SDL_VIDEO_DRIVER=dummy). */
+static void snapshot(void)
+{
+    static const char *dir;
+    static bool checked;
+    static Uint64 last_ns;
+    static int n;
+    if (!checked) { dir = SDL_getenv("TD2_SNAPSHOT_DIR"); checked = true; }
+    if (!dir) return;
+    Uint64 now = SDL_GetTicksNS();
+    if (n && now - last_ns < 2 * SDL_NS_PER_SECOND) return;
+    last_ns = now;
+    SDL_Surface *s = SDL_CreateSurfaceFrom(frame_w, frame_h, SDL_PIXELFORMAT_XRGB8888, frame, frame_w * 4);
+    if (!s) return;
+    char path[512];
+    SDL_snprintf(path, sizeof path, "%s/snap%04d.bmp", dir, n++);
+    SDL_SaveBMP(s, path);
+    SDL_DestroySurface(s);
+}
+
 static void present(void)
 {
+    snapshot();
     if (!texture) return;
     SDL_UpdateTexture(texture, NULL, frame, frame_w * 4);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

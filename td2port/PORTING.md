@@ -30,7 +30,7 @@ game/scene*.c       scene_render spec: stage runner 06c9:1b2c, projection, drawi
 game/sim*.c         simulation spec: driving tick 06c9:403b and everything it runs, 06b3:0008    (sim agent)
 ```
 
-Only `host.c`, `mem.c` and `main.c` include SDL. Game and platform code talks to the host through
+Only `host.c`, `mem.c`, `main.c` and `platform/res.c` (SDL_IOStream file access) include SDL. Game and platform code talks to the host through
 `host.h`. Each module declares its API in its own header (`platform/gfx.h`, `game/flow.h`, ...).
 
 ## Memory model (`mem.h`)

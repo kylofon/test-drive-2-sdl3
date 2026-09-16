@@ -15,6 +15,9 @@
 
 #include "host.h"
 #include "mem.h"
+#include "platform/gfx.h"
+#include "platform/input.h"
+#include "platform/timer.h"
 
 int game_main(void);   /* game/flow.c: port of main() at 0000:07b3 */
 
@@ -49,6 +52,9 @@ int main(int argc, char **argv)
     }
 
     if (!host_init(dir, scale)) return 1;
+    gfx_init();      /* EGA model, frame source */
+    timer_init();    /* host tick handler, timer routines */
+    input_init();    /* INT 9 handler, getkey code pointers */
     int rc = game_main();
     host_shutdown();
     return rc;

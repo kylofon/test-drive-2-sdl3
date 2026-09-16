@@ -1620,3 +1620,13 @@ consistent state.
   with the patched branches only the value 1 matters.
 * **Q11** `nearest_ahead` (`5c30`) with an empty list would loop 65536 times (`loop` with CX = 0) and
   return an uninitialised index; no shipped stage has an empty list.
+
+## 10. Corrections found while porting (td2port/src/game/sim*.c, checked against the listing)
+
+* `road_edges`: the left side never enters the zone loop (4c1f jumps straight to the shoulder brake).
+* `roadside_hit`: on the `.SGN` path, BP still holds the type when t < 0x50; it is stale only for t ≥ 0x50.
+* Ring counter DS:533E: the motion loop increments only the low byte.
+* `scenery_sprites` (DS:1DB4 + t·4) is the segment word of `scenery_handles[t]` (DS:1DB2).
+* `pass_collisions`: CX on entry is always `same_count8`.
+* `police()`: the "passed the parked cop" test is the sign of the 16-bit distance, not the carry-based
+  signed compare.
