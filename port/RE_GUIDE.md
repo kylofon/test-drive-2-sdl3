@@ -44,8 +44,8 @@ rebuilt with a newer compiler.
 
 ## Known so far (don't re-derive, cite FORMATS.md and the specs in `port/spec/`)
 
-* Packed file format (Huffman + RLE) and the resource archive / sprite header. Open: the high-nibble
-  plane-map flags, see FORMATS.md.
+* Packed file format (Huffman + RLE), the resource archive, the sprite header and plane-map flags, car,
+  stage, font, sound and save files: FORMATS.md.
 * Segment map and which code is where (FORMATS.md, "Executables").
 * Shared assembly library: `port/td2ega_td1_matches.csv`, e.g. `06c9:8a0c gfx_fill_rect`,
   `06c9:8582`/`06c9:c984 gfx_draw_line`, `06c9:a530`/`a547` text drawing, `06c9:abfa gfx_set_palette`,
@@ -63,9 +63,11 @@ rebuilt with a newer compiler.
 
 ```
 python tools/merge_symbols.py
-tr -d '' < port/symbols_ghidra.txt > work/symbols_ghidra.txt
-tr -d '' < port/td2ega_starts.txt > work/td2ega_starts.txt
-analyzeHeadless _ghidra TD2 -import work/TD2EGA_unp.exe -overwrite -scriptPath tools/ghidra     -preScript SetDS.java 178F -postScript ApplySymbols.java work/symbols_ghidra.txt 178F     -postScript DecompileAll.java work/td2ega_starts.txt port/decomp/td2ega.c 178F 120
+tr -d '\r' < port/symbols_ghidra.txt > work/symbols_ghidra.txt
+tr -d '\r' < port/td2ega_starts.txt > work/td2ega_starts.txt
+analyzeHeadless _ghidra TD2 -import work/TD2EGA_unp.exe -overwrite -scriptPath tools/ghidra \
+    -preScript SetDS.java 178F -postScript ApplySymbols.java work/symbols_ghidra.txt 178F \
+    -postScript DecompileAll.java work/td2ega_starts.txt port/decomp/td2ega.c 178F 120
 python tools/ghidra/postprocess.py port/decomp/td2ega.c 178F
 ```
 
