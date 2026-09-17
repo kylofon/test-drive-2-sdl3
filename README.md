@@ -6,16 +6,31 @@ A faithful C reimplementation of the EGA version of Accolade / Distinctive Softw
 data is not redistributed, and you need to get it yourself. The port targets *Test Drive II: The Collection*,
 which includes the Supercars / Muscle Cars and California / European Challenge add-ons.
 
-## Download
+## How to play (Windows)
 
-Windows x64 builds are on the [Releases](https://github.com/kylofon/test-drive-2-sdl3/releases) page. Unzip,
-then run:
+You need the files of the original DOS *Test Drive II* (ideally *The Collection*). They are not included.
 
-```bash
-td2port.exe --game-dir "C:\path\to\your\Test Drive II files"
-```
+1. Open the [latest release](https://github.com/kylofon/test-drive-2-sdl3/releases/latest) and download
+   `td2port-…-win64.zip`.
+2. Put your original game files in a folder named `Game`.
+3. Open the zip. Copy all of its files into the folder that holds `Game`, so that `td2port.exe` sits next to
+   `Game`:
 
-The zip contains `td2port.exe`, `SDL3.dll` and `libiconv-2.dll`. Keep the three files together.
+   ```text
+   Test Drive II\
+   ├── Game\             <- your original game files (TD2EGA.EXE, CARS.DAT, SCENES.DAT, ...)
+   ├── td2port.exe
+   ├── SDL3.dll
+   ├── libiconv-2.dll
+   └── (the other files from the zip)
+   ```
+
+4. Double-click `td2port.exe`.
+
+Keep the folder somewhere you can save files, such as Documents or the Desktop, not Program Files. The game
+saves its high scores and your last car / scenery choice in `Game`. If Windows says "Windows protected your
+PC", click **More info**, then **Run anyway**. Press Alt+Enter for fullscreen. The keys are listed under
+[Controls](#controls-from-the-original).
 
 ## Status
 
